@@ -73,7 +73,7 @@
             <Grid x:Name="gridAddWindow" Opacity="0">
                 <Grid x:Name="gridAddBackCover" Background="#88000000" MouseDown="gridAddBackCover_MouseDown" IsHitTestVisible="False"/>
                 
-                <Grid Margin="0,50,0,90" IsHitTestVisible="False">
+                <Grid Margin="0,30,0,90" IsHitTestVisible="False">
                     <local:AniScrollViewer Style="{DynamicResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto">
                         <StackPanel x:Name="stackListAutoDiscovery" VerticalAlignment="Bottom" Background="{DynamicResource sColorDeep}">
                             <!--
@@ -90,27 +90,34 @@
                 </Grid>
 
                 <Grid x:Name="gridAddInnerWindow" Margin="0,0,0,-90" Background="{DynamicResource sColorDeep}" Height="90" VerticalAlignment="Bottom">
+                    <Grid x:Name="gridMessage" Height="30" Background="Crimson" VerticalAlignment="Top" Margin="0,0,0,0">
+                        <TextBlock x:Name="textMessage" Text="" FontSize="13.33" Foreground="White" VerticalAlignment="Center" TextAlignment="Center"/>
+                    </Grid>
+                    
+                    <Rectangle Height="90" Fill="{DynamicResource sColorDeep}"/>
+                    
                     <TextBox x:Name="textboxFeedInput" Margin="40,10,10,10" Height="30" FontSize="14" Tag="Enter your feed URL" VerticalAlignment="Top"/>
                     <TextBox x:Name="textboxCategoryInput" Margin="40,50,10,10" Height="30" FontSize="14" Tag="Category's name!" VerticalAlignment="Top"/>
-                
-                    <Button x:Name="buttonFeedAccept" Margin="10,10,10,0" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+                    <Button x:Name="buttonFeedAccept" Margin="10,10,10,0" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
                         <Image Width="30" Source="/Resources/iconFeed.png"/>
                     </Button>
-                    <Button x:Name="buttonCategoryAccept" Margin="10,50,10,0" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Button x:Name="buttonCategoryAccept" Margin="10,50,10,0" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
                         <Image Width="30" Source="/Resources/iconCategory.png"/>
                     </Button>
                 </Grid>
             </Grid>
+            
 
             <Grid Background="{DynamicResource sColor}" Grid.Row="1">
-                <Button x:Name="buttonAdd" Grid.Row="0" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top" Click="buttonAdd_Click">
+                <Button x:Name="buttonAdd" Grid.Row="0" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top" Click="buttonAdd_Click" Style="{DynamicResource FlatButton}">
                     <Grid Height="50" Width="50">
                         <Grid Width="50" Height="50" Background="{DynamicResource sColorDeep}">
                             <Image Width="25" Source="/Resources/iconAdd.png"/>
                         </Grid>
                     </Grid>
                 </Button>
-                <Button x:Name="buttonSetting" Grid.Row="0" Margin="50,0,0,0" Background="Transparent" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Button x:Name="buttonSetting" Grid.Row="0" Margin="50,0,0,0" Background="Transparent" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
                     <Grid Height="50" Width="50">
                         <Grid Width="50" Height="50" Background="{DynamicResource sColorDeep}">
                             <Image Width="40" Source="/Resources/iconSetting.png"/>
@@ -124,16 +131,16 @@
         
         <Grid Background="{DynamicResource sColor}" Grid.Column="0" Grid.ColumnSpan="3">
             <Grid Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right">
-                <Button x:Name="buttonMinimize" Width="34" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,78,0">
+                <Button x:Name="buttonMinimize" Width="34" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,78,0" Style="{DynamicResource FlatButton}">
                     <Image Source="Resources/BtnMin.png"/>
                 </Button>
-                <Button x:Name="buttonMaximize" Width="34" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,44,0">
+                <Button x:Name="buttonMaximize" Width="34" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,44,0" Style="{DynamicResource FlatButton}">
                     <Image Source="Resources/BtnMax.png"/>
                 </Button>
-                <Button x:Name="buttonRestore" Width="34" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,44,0" Visibility="Collapsed">
+                <Button x:Name="buttonRestore" Width="34" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,44,0" Visibility="Collapsed" Style="{DynamicResource FlatButton}">
                     <Image Source="Resources/BtnRestore.png"/>
                 </Button>
-                <Button x:Name="buttonClose" Width="34" Background="#ff2255" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,10,0">
+                <Button x:Name="buttonClose" Width="34" Background="#ff2255" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{DynamicResource FlatButton}">
                     <Image Source="Resources/BtnClose.png"/>
                 </Button>
             </Grid>
@@ -144,19 +151,19 @@
         <Grid Grid.Column="1" shell:WindowChrome.IsHitTestVisibleInChrome="True">
             <StackPanel Orientation="Horizontal">
                 <Grid>
-                    <Button x:Name="buttonModeAll" Background="Transparent" Width="50" Visibility="Collapsed" Tag="all" Click="buttonModeSelect_Click">
+                    <Button x:Name="buttonModeAll" Background="Transparent" Width="50" Visibility="Collapsed" Tag="all" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
                         <Image Source="/Resources/text/textall_no.png"/>
                     </Button>
                     <Image x:Name="imageModeAll" Width="50" Source="/Resources/text/textall.png" IsHitTestVisible="False"/>
                 </Grid>
                 <Grid>
-                    <Button x:Name="buttonModeUnread" Background="Transparent" Width="100" Tag="unread" Click="buttonModeSelect_Click">
+                    <Button x:Name="buttonModeUnread" Background="Transparent" Width="100" Tag="unread" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
                         <Image Source="/Resources/text/textunread_no.png"/>
                     </Button>
                     <Image x:Name="imageModeUnread" Width="100" Source="/Resources/text/textunread.png" IsHitTestVisible="False" Visibility="Collapsed"/>
                 </Grid>
                 <Grid>
-                    <Button x:Name="buttonModeStarred" Background="Transparent" Width="100" Tag="starred" Click="buttonModeSelect_Click">
+                    <Button x:Name="buttonModeStarred" Background="Transparent" Width="100" Tag="starred" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
                         <Image Source="/Resources/text/textstarred_no.png"/>
                     </Button>
                     <Image x:Name="imageModeStarred" Width="100" Source="/Resources/text/textstarred.png" IsHitTestVisible="False" Visibility="Collapsed"/>

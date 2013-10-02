@@ -14,7 +14,7 @@ namespace earthreader {
 		public bool IsFeed;
 		public string URL;
 		public int ID;
-		public List<string> Children;
+		public List<int> Children;
 		public BitmapImage Favicon;
 
 		private string _caption;
@@ -66,8 +66,13 @@ namespace earthreader {
 	}
 
 	public class CustomControl {
-		public static Button GetFeedItemButton(FeedItem feedItem, string strTag) {
-			Button buttonBase = new Button() { Height = 40, Tag = strTag, Background = Brushes.Transparent, HorizontalContentAlignment = System.Windows.HorizontalAlignment.Stretch };
+		public static Button GetFeedItemButton(FeedItem feedItem, string strTag, double margin) {
+			Button buttonBase = new Button() {
+				Height = 40, Tag = strTag,
+				Background = Brushes.Transparent,
+				HorizontalContentAlignment = System.Windows.HorizontalAlignment.Stretch,
+				Margin = new System.Windows.Thickness(0, 0, 0, margin),
+			};
 
 			Grid grid = new Grid();
 			Image image = new Image() {

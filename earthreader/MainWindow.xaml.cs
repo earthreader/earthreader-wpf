@@ -34,10 +34,17 @@ namespace earthreader {
 			this.PreviewMouseDown += (o, e) => isMouseDown = true;
 			this.PreviewMouseUp += (o, e) => isMouseDown = false;
 
+			buttonCategoryAccept.Click += (o, e) => {
+				if (textboxCategoryInput.Text == "") {
+					ShowMessage("Category name can't be empty");
+					return;
+				}
+			};
+
 			// Add root
 			dictFeedItem.Add(0, new FeedItem() {
 				ID = 0, Caption = "all feeds", Count = 1,
-				IsFeed = true, URL = "", Children = new List<string>(),
+				IsFeed = true, URL = "", Children = new List<int>(),
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconFeed.png")),
 			});
 
@@ -122,6 +129,7 @@ namespace earthreader {
 				gridAddBackCover.IsHitTestVisible = false;
 			} else {
 				gridAddBackCover.IsHitTestVisible = true;
+				gridMessage.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(0)));
 
 				textboxFeedInput.Text = textboxCategoryInput.Text = "";
 				stackListAutoDiscovery.Children.Clear();
@@ -144,6 +152,27 @@ namespace earthreader {
 			sb.Begin(this);
 		}
 
+		private void ShowMessage(string message) {
+			textMessage.Text = message;
+			Storyboard sb = new Storyboard();
+			ThicknessAnimation ta1 = new ThicknessAnimation(new Thickness(0, -30, 0, 0), TimeSpan.FromMilliseconds(200)) {
+				BeginTime = TimeSpan.FromMilliseconds(100),
+				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
+			};
+			ThicknessAnimation ta2 = new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(200)) {
+				BeginTime = TimeSpan.FromSeconds(3),
+				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
+			};
+
+			Storyboard.SetTarget(ta1, gridMessage); Storyboard.SetTarget(ta2, gridMessage);
+			Storyboard.SetTargetProperty(ta1, new PropertyPath(Grid.MarginProperty));
+			Storyboard.SetTargetProperty(ta2, new PropertyPath(Grid.MarginProperty));
+
+			sb.Children.Add(ta1); sb.Children.Add(ta2);
+			sb.Begin(this);
+		}
+
+
 		bool isFirstView = true;
 		private void RefreshFeedList(int nID) {
 			isFirstView = !isFirstView;
@@ -156,18 +185,51 @@ namespace earthreader {
 			}
 
 			stackNext.Children.Clear();
-			Button buttonRoot = CustomControl.GetFeedItemButton(dictFeedItem[nID], "C" + nID);
+			Button buttonRoot = CustomControl.GetFeedItemButton(dictFeedItem[nID], "A" + nID, 0);
+			buttonRoot.Click += buttonFeedItem_Click;
 			stackNext.Children.Add(buttonRoot);
 
-			if (nID >= 0) {
+			if (nID > 0) {
 				FeedItem fItem = new FeedItem() {
 					ID = 0, Caption = "back to parent asdubasodubasodubasoubasidbasodub", Count = 0,
-					IsFeed = true, URL = "", Children = new List<string>(),
+					IsFeed = true, URL = "", Children = new List<int>(),
 					Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconBack.png")),
 				};
-				Button buttonBack = CustomControl.GetFeedItemButton(fItem, "C-1");
+				Button buttonBack = CustomControl.GetFeedItemButton(fItem, "B" + nID, 20);
+				buttonBack.Click += buttonFeedItem_Click;
 				stackNext.Children.Add(buttonBack);
 			}
+
+			foreach (int fItemTag in dictFeedItem[nID].Children) {
+				Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[fItemTag], fItemTag.ToString(), 0);
+				buttonItem.Click += buttonFeedItem_Click;
+				stackNext.Children.Add(buttonItem);
+			}
+		}
+
+		private void buttonFeedItem_Click(object sender, RoutedEventArgs e) {
+			string strTag = (string)((Button)sender).Tag;
+			int nID = 0;
+
+			switch (strTag[0]) {
+				case 'A':
+					// all feeds
+					nID = Convert.ToInt32(strTag.Substring(1));
+
+					break;
+				case 'B':
+					// back to parent
+					nID = Convert.ToInt32(strTag.Substring(1));
+
+					break;
+				default:
+					// default
+					nID = Convert.ToInt32(strTag);
+
+					break;
+			}
+
+			MessageBox.Show(nID.ToString());
 		}
 	}
 }
