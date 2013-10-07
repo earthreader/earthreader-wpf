@@ -6,6 +6,7 @@
         Title="MainWindow" Background="White"
         Height="500" Width="1000" BorderBrush="{DynamicResource sColor}" BorderThickness="1"
         MinHeight="400" MinWidth="800" >
+
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
             ResizeBorderThickness="5"
@@ -15,6 +16,7 @@
             >
         </shell:WindowChrome>
     </shell:WindowChrome.WindowChrome>
+    
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -26,24 +28,31 @@
     <Grid x:Name="gridMain">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="107*"/>
-            <RowDefinition Height="102*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" MinWidth="250"/>
+            <ColumnDefinition x:Name="widthFeedlist" Width="250" MinWidth="200" MaxWidth="380"/>
             <ColumnDefinition Width="400"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
+        
+        <GridSplitter x:Name="gridsplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
+        <!-- 
+        <GridSplitter Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
+        -->
+        
         <Grid Background="#393836" Grid.Row="1" Grid.RowSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
             <local:AniScrollViewer x:Name="scrollFeedlist" Style="{DynamicResource ScrollViewerStyle2}">
-                <Grid>
-                    <StackPanel x:Name="stackFeedlist1" Visibility="Collapsed">
+                <Grid x:Name="gridFeedlist">
+                    <StackPanel x:Name="stackFeedlist2" Visibility="Visible" Background="#393836">
+
+                    </StackPanel>
+                    <StackPanel x:Name="stackFeedlist1" Visibility="Visible" Background="#393836">
                         <Button Height="50" HorizontalContentAlignment="Stretch" Background="Transparent">
                             <Grid>
                                 <Grid Width="50" Height="50" HorizontalAlignment="Left" Background="{DynamicResource sColorDeep}"/>
@@ -53,10 +62,6 @@
                         <!-- 
                         <Grid Height="1500" Background="Transparent"/>
                         -->
-                    </StackPanel>
-                    
-                    <StackPanel x:Name="stackFeedlist2" Visibility="Visible">
-                        
                     </StackPanel>
                 </Grid>
 
@@ -91,7 +96,7 @@
 
                 <Grid x:Name="gridAddInnerWindow" Margin="0,0,0,-90" Background="{DynamicResource sColorDeep}" Height="90" VerticalAlignment="Bottom">
                     <Grid x:Name="gridMessage" Height="30" Background="Crimson" VerticalAlignment="Top" Margin="0,0,0,0">
-                        <TextBlock x:Name="textMessage" Text="" FontSize="13.33" Foreground="White" VerticalAlignment="Center" TextAlignment="Center"/>
+                        <TextBlock x:Name="textMessage" Text="" FontSize="13.33" Foreground="White" VerticalAlignment="Center" TextAlignment="Center" Margin="0,-4,0,0"/>
                     </Grid>
                     
                     <Rectangle Height="90" Fill="{DynamicResource sColorDeep}"/>

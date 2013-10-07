@@ -13,7 +13,7 @@ namespace earthreader {
 	public class FeedItem : INotifyPropertyChanged {
 		public bool IsFeed;
 		public string URL;
-		public int ID;
+		public int ID, ParentID;
 		public List<int> Children;
 		public BitmapImage Favicon;
 
