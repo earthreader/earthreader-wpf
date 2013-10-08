@@ -6,6 +6,8 @@
     <Application.Resources>
         <SolidColorBrush x:Key="sColor" Color="#00b98d"/>
         <SolidColorBrush x:Key="sColorDeep" Color="#008162"/>
+        <Color x:Key="cColor">#00b98d</Color>
+        <Color x:Key="cColorDeep">#008162</Color>
         
         <Style TargetType="{x:Type Button}">
             <Setter Property="BorderThickness" Value="0"/>

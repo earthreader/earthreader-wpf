@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +16,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using System.Xml;
 
 namespace earthreader {
 	/// <summary>
@@ -31,17 +35,36 @@ namespace earthreader {
 			this.StateChanged += MainWindow_StateChanged;
 
 			this.MouseMove += MainWindow_MouseMove;
-			this.PreviewMouseDown += (o, e) => isMouseDown = true;
-			this.PreviewMouseUp += (o, e) => isMouseDown = false;
+			this.PreviewMouseMove += Feedlist_OrderChange;
+			this.PreviewMouseUp += Feedlist_CompleteReorder;
 
-			buttonCategoryAccept.Click += (o, e) => {
-				if (textboxCategoryInput.Text == "") {
-					ShowMessage("Category's name can't be empty");
+			this.PreviewMouseDown += (o, e) => isMouseDown = true;
+
+			textboxInput.KeyDown += (o, e) => {
+				if (e.Key == Key.Enter) {
+					buttonAddAccept.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+				}
+			};
+
+			textboxInput.TextChanged += (o, e) => {
+				if (textboxInput.Text == "") { return; }
+				strGlobalLoadingURL = textboxInput.Text;
+
+				dtm.Stop();
+				dtm.Tag = (string)textboxInput.Text;
+
+				dtm.Tick += dtm_Tick;
+				dtm.Start();
+			};
+
+			buttonAddAccept.Click += (o, e) => {
+				if (textboxInput.Text == "") {
+					ShowMessage("Category's name can't be empty", 3);
 					return;
 				}
 
 				dictFeedItem.Add(nCount, new FeedItem() {
-					ID = nCount, Caption = textboxCategoryInput.Text, Count = 0, ParentID = nNowID,
+					ID = nCount, Caption = textboxInput.Text, Count = 0, ParentID = nNowID,
 					IsFeed = false, URL = "", Children = new List<int>(), 
 					Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconCategory.png")),
 				});
@@ -49,26 +72,87 @@ namespace earthreader {
 
 				Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[nCount], "C" + nCount, 0);
 				buttonItem.Click += buttonFeedItem_Click;
+				buttonItem.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
 				stackNow.Children.Add(buttonItem);
 
 				nCount++;
 				buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
-			};
-			buttonFeedAccept.Click += (o, e) => {
-				if (textboxFeedInput.Text == "") {
-					ShowMessage("Enter feed url");
-					return;
-				}
 			};
 
 			// Add root
 			dictFeedItem.Add(0, new FeedItem() {
 				ID = 0, Caption = "all feeds", Count = 1, ParentID = 0,
 				IsFeed = true, URL = "", Children = new List<int>(),
-				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconFeed.png")),
+				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconAll.png")),
 			});
 
+			// Test
+
+			for (int i = 0; i < 30; i++) {
+				dictFeedItem.Add(nCount, new FeedItem() {
+					ID = nCount, Caption = "Folder " + i.ToString("00"), Count = 0, ParentID = 0,
+					IsFeed = false, URL = "", Children = new List<int>(),
+					Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconCategory.png")),
+				});
+				dictFeedItem[0].Children.Add(nCount);
+				nCount++;
+			}
+
+			// Test
+
 			RefreshFeedList(0, false);
+		}
+
+		string strGlobalLoadingURL = "";
+		DispatcherTimer dtm = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(1500), IsEnabled = false };
+		private async void dtm_Tick(object sender, EventArgs e) {
+			((DispatcherTimer)sender).Stop();
+			if (!isAddWindowMode) { return; }
+
+			string strURL = (string)((DispatcherTimer)sender).Tag;
+
+			if (strURL != strGlobalLoadingURL) { return; }
+
+			stackListAutoDiscovery.Children.Clear();
+			ShowMessage("Searching...", 20);
+			
+			Task<List<FeedCandidateList>> httpTask = AutoDiscovery.GetCandidateFeeds(strURL);
+			List<FeedCandidateList> listCd = await httpTask;
+
+			stackListAutoDiscovery.Children.Clear();
+
+			if (strURL != strGlobalLoadingURL) { return; }
+			if (listCd.Count == 0) {
+				ShowMessage(string.Format("{0} feed detected", listCd.Count), 3);
+				return;
+			}
+
+			foreach (FeedCandidateList fcd in listCd) {
+				Button buttonCandidate = CustomControl.GetFeedCandidateButton(fcd.Title, fcd.URL);
+				buttonCandidate.Click += buttonFeedCandidate_Click;
+				stackListAutoDiscovery.Children.Add(buttonCandidate);
+			}
+			ShowMessage("", 0);
+		}
+
+		private void buttonFeedCandidate_Click(object sender, RoutedEventArgs e) {
+			KeyValuePair<string, string> kvp = (KeyValuePair<string, string>)((Button)sender).Tag;
+			string strCaption = kvp.Key, strURL = kvp.Value;
+
+			dictFeedItem.Add(nCount, new FeedItem() {
+				ID = nCount, Caption = strCaption, Count = 0, ParentID = nNowID,
+				IsFeed = true, URL = strURL,
+				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconFeed.png")),
+			});
+			dictFeedItem[nNowID].Children.Add(nCount);
+
+			Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[nCount], "F" + nCount, 0);
+			buttonItem.Click += buttonFeedItem_Click;
+			buttonItem.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
+			stackNow.Children.Add(buttonItem);
+
+			nCount++;
+			buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
 		}
 
 		
@@ -78,8 +162,10 @@ namespace earthreader {
 
 		private void MainWindow_MouseMove(object sender, MouseEventArgs e) {
 			if (isAddWindowMode) {
-				ScrollBar s = scrollFeedlist.Template.FindName("PART_VerticalScrollBar", scrollFeedlist) as ScrollBar;
-				s.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(0)));
+				ScrollBar s1 = scrollFeedlist1.Template.FindName("PART_VerticalScrollBar", scrollFeedlist1) as ScrollBar;
+				s1.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(0)));
+				ScrollBar s2 = scrollFeedlist2.Template.FindName("PART_VerticalScrollBar", scrollFeedlist2) as ScrollBar;
+				s2.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(0)));
 				isScrollVisible = false;
 				return;
 			}
@@ -87,14 +173,18 @@ namespace earthreader {
 			if (isScrollVisible && e.GetPosition(this).X > nFeedlistWidth + 10 && !isMouseDown) {
 				isScrollVisible = false;
 
-				ScrollBar s = scrollFeedlist.Template.FindName("PART_VerticalScrollBar", scrollFeedlist) as ScrollBar;
-				s.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(150)));
+				ScrollBar s1 = scrollFeedlist1.Template.FindName("PART_VerticalScrollBar", scrollFeedlist1) as ScrollBar;
+				s1.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(150)));
+				ScrollBar s2 = scrollFeedlist2.Template.FindName("PART_VerticalScrollBar", scrollFeedlist2) as ScrollBar;
+				s2.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(150)));
 
 			} else if (!isScrollVisible && e.GetPosition(this).X <= nFeedlistWidth + 10) {
 				isScrollVisible = true;
 
-				ScrollBar s = scrollFeedlist.Template.FindName("PART_VerticalScrollBar", scrollFeedlist) as ScrollBar;
-				s.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+				ScrollBar s1 = scrollFeedlist1.Template.FindName("PART_VerticalScrollBar", scrollFeedlist1) as ScrollBar;
+				s1.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+				ScrollBar s2 = scrollFeedlist2.Template.FindName("PART_VerticalScrollBar", scrollFeedlist2) as ScrollBar;
+				s2.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
 			}
 		}
 
@@ -133,14 +223,16 @@ namespace earthreader {
 		private void gridAddBackCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
 		private void buttonAdd_Click(object sender, RoutedEventArgs e) {
 			if (isAddWindowMode) {
+				gridAddWindow.IsHitTestVisible = false;
 				gridAddBackCover.IsHitTestVisible = false;
 			} else {
+				gridAddWindow.IsHitTestVisible = true;
 				gridAddBackCover.IsHitTestVisible = true;
 				gridMessage.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(0)));
 
-				textboxFeedInput.Text = textboxCategoryInput.Text = "";
+				textboxInput.Text = "";
 				stackListAutoDiscovery.Children.Clear();
-				textboxFeedInput.Focus();
+				textboxInput.Focus();
 			}
 			isAddWindowMode = !isAddWindowMode;
 
@@ -148,7 +240,7 @@ namespace earthreader {
 			Storyboard sb = new Storyboard();
 			DoubleAnimation da = new DoubleAnimation(nParameter, TimeSpan.FromMilliseconds(250));
 			ThicknessAnimation ta = new ThicknessAnimation(new Thickness(0, 0, 0, -90 * (1 - nParameter)), TimeSpan.FromMilliseconds(250)) {
-				BeginTime = TimeSpan.FromMilliseconds(150 * nParameter),
+				BeginTime = TimeSpan.FromMilliseconds(100 * nParameter),
 				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut }
 			};
 
@@ -160,29 +252,35 @@ namespace earthreader {
 		}
 
 
-		private void ShowMessage(string message) {
-			textMessage.Text = message;
+		private void ShowMessage(string message, double dTimeout) {
 			Storyboard sb = new Storyboard();
-			ThicknessAnimation ta1 = new ThicknessAnimation(new Thickness(0, -30, 0, 0), TimeSpan.FromMilliseconds(200)) {
-				BeginTime = TimeSpan.FromMilliseconds(100),
-				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
-			};
+
+			if (dTimeout > 0) {
+				ThicknessAnimation ta1 = new ThicknessAnimation(new Thickness(0, 0, 0, 50), TimeSpan.FromMilliseconds(200)) {
+					BeginTime = TimeSpan.FromMilliseconds(100),
+					EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
+				};
+				textMessage.Text = message;
+				Storyboard.SetTarget(ta1, gridMessage);
+				Storyboard.SetTargetProperty(ta1, new PropertyPath(Grid.MarginProperty));
+				sb.Children.Add(ta1);
+			}
+
 			ThicknessAnimation ta2 = new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(200)) {
-				BeginTime = TimeSpan.FromSeconds(3),
+				BeginTime = TimeSpan.FromSeconds(dTimeout),
 				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
 			};
 
-			Storyboard.SetTarget(ta1, gridMessage); Storyboard.SetTarget(ta2, gridMessage);
-			Storyboard.SetTargetProperty(ta1, new PropertyPath(Grid.MarginProperty));
+			Storyboard.SetTarget(ta2, gridMessage);
 			Storyboard.SetTargetProperty(ta2, new PropertyPath(Grid.MarginProperty));
 
-			sb.Children.Add(ta1); sb.Children.Add(ta2);
+			 sb.Children.Add(ta2);
 			sb.Begin(this);
 		}
 
 
 		bool isFirstView = true; int nNowID = 0;
-		StackPanel stackNow;
+		StackPanel stackNow; ScrollViewer scrollNow;
 		private void RefreshFeedList(int nID, bool isBack) {
 			if (isFeedlistAnimating) { return; }
 
@@ -191,11 +289,17 @@ namespace earthreader {
 
 			StackPanel stackPrev = isFirstView ? stackFeedlist2 : stackFeedlist1;
 			StackPanel stackNext = isFirstView ? stackFeedlist1 : stackFeedlist2;
+
+			scrollNow = isFirstView ? scrollFeedlist1 : scrollFeedlist2;
 			stackNow = stackNext;
 			stackNext.Children.Clear();
-			
-			Button buttonRoot = CustomControl.GetFeedItemButton(dictFeedItem[nID], "A" + nID, 0);
+
+			double dMargin = nID > 0 ? 0 : 20;
+
+			Button buttonRoot = CustomControl.GetFeedItemButton(dictFeedItem[nID], "A" + nID, dMargin);
 			buttonRoot.Click += buttonFeedItem_Click;
+			buttonRoot.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
+
 			stackNext.Children.Add(buttonRoot);
 
 			if (nID > 0) {
@@ -206,6 +310,7 @@ namespace earthreader {
 				};
 				Button buttonBack = CustomControl.GetFeedItemButton(fItem, "B" + dictFeedItem[nID].ParentID, 20);
 				buttonBack.Click += buttonFeedItem_Click;
+				buttonBack.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
 				stackNext.Children.Add(buttonBack);
 			}
 
@@ -215,10 +320,10 @@ namespace earthreader {
 
 				Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[fItemTag], strTag + fItemTag, 0);
 				buttonItem.Click += buttonFeedItem_Click;
+				buttonItem.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
 				stackNext.Children.Add(buttonItem);
 			}
 
-			scrollFeedlist.ScrollToTop();
 			AnimateFeedlist(isBack);
 		}
 
@@ -228,15 +333,22 @@ namespace earthreader {
 
 			StackPanel stackPrev = isFirstView ? stackFeedlist2 : stackFeedlist1;
 			StackPanel stackNext = isFirstView ? stackFeedlist1 : stackFeedlist2;
+			ScrollViewer scrollPrev = isFirstView ? scrollFeedlist2 : scrollFeedlist1;
+			ScrollViewer scrollNext = isFirstView ? scrollFeedlist1 : scrollFeedlist2;
 			Thickness tn = new Thickness(-100, 0, 0, 0);
+
+			stackNext.Visibility = Visibility.Visible;
+			scrollPrev.IsHitTestVisible = false;
+			scrollNext.IsHitTestVisible = true;
+
 			
 			if (!isBack) {
 				tn = new Thickness(widthFeedlist.Width.Value, 0, 0, 0);
-				gridFeedlist.Children.Remove(stackNext);
-				gridFeedlist.Children.Add(stackNext);
+				gridFeedlist.Children.Remove(scrollNow);
+				gridFeedlist.Children.Add(scrollNow);
 			} else {
-				gridFeedlist.Children.Remove(stackNext);
-				gridFeedlist.Children.Insert(0, stackNext);
+				gridFeedlist.Children.Remove(scrollNow);
+				gridFeedlist.Children.Insert(0, scrollNow);
 			}
 
 			int nBack = isBack ? 1 : 0;
@@ -258,13 +370,243 @@ namespace earthreader {
 			Storyboard.SetTargetProperty(taNext, new PropertyPath(StackPanel.MarginProperty));
 
 			sb.Children.Add(taPrev); sb.Children.Add(taPreS); sb.Children.Add(taNext);
-			sb.Completed += delegate(object sender, EventArgs e) { isFeedlistAnimating = false; };
+			sb.Completed += delegate(object sender, EventArgs e) {
+				isFeedlistAnimating = false;
+				stackPrev.Visibility = Visibility.Collapsed;
+
+				ScrollBar s1 = scrollNext.Template.FindName("PART_VerticalScrollBar", scrollNext) as ScrollBar;
+				s1.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+			};
 			sb.Begin(this);
 		}
+
+
+		int nMouseDownID = -1, nMouseMovingID = -1; Point pointMouseDown; bool isMoving;
+		private void buttonFeedItem_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+			string strTag = (string)((Button)sender).Tag;
+			isMoving = false;
+			nToIndex = -1;
+
+			if (strTag[0] == 'A' || strTag[0] == 'B') { return; }
+
+			nMouseDownID = Convert.ToInt32(strTag.Substring(1));
+			pointMouseDown = e.GetPosition(this);
+
+			nFromIndex = dictFeedItem[nNowID].Children.IndexOf(nMouseDownID);
+
+			textTemp.Text = nMouseDownID.ToString();
+		}
+
+		Point pointMouseMove;
+		private void Feedlist_OrderChange(object sender, MouseEventArgs e) {
+			if (!isMouseDown || nMouseDownID < 0) { return; }
+			pointMouseMove = e.GetPosition(this);
+
+			if (Math.Max(Math.Abs(pointMouseDown.X - pointMouseMove.X), Math.Abs(pointMouseDown.Y - pointMouseMove.Y)) >= 5 && !isMoving) {
+				nMouseMovingID = nMouseDownID;
+				isMoving = true;
+
+				textNowMoving.Text = dictFeedItem[nMouseDownID].Caption;
+				gridMoveStatus.Visibility = Visibility.Visible;
+				rectMovePosition.Width = widthFeedlist.Width.Value;
+			}
+
+			if (isMoving) { FeedlistMouseMoveEvent(); }
+		}
+
+		bool isCornerScrollingDelay; int nFromIndex, nToIndex;
+		private void FeedlistMouseMoveEvent() {
+			if (!isMouseDown) { return; }
+
+			if (pointMouseMove.X < 0 || pointMouseMove.X > widthFeedlist.Width.Value || pointMouseMove.Y < 0 || pointMouseMove.Y > this.ActualHeight) {
+				nToIndex = -1;
+				gridMoveStatus.Visibility = Visibility.Collapsed;
+				return;
+			} else {
+				gridMoveStatus.Visibility = Visibility.Visible;
+			}
+
+			gridNowMoving.Margin = new Thickness(pointMouseMove.X - 100, pointMouseMove.Y - 70, 0, 0);
+
+			if (pointMouseMove.Y <= 50) {
+				rectMovePosition.Visibility = Visibility.Collapsed;
+
+				if (isCornerScrollingDelay) { return; }
+				isCornerScrollingDelay = true;
+				DelayTimer(250, "isCornerScrollingDelay");
+
+				scrollNow.BeginAnimation(AniScrollViewer.CurrentVerticalOffsetProperty,
+					new DoubleAnimation(scrollNow.VerticalOffset, Math.Max(scrollNow.VerticalOffset - 150, 0), TimeSpan.FromMilliseconds(200)) {
+						EasingFunction = new ExponentialEase() { Exponent = 1, EasingMode = EasingMode.EaseOut },
+					});
+			} else if (pointMouseMove.Y >= this.ActualHeight - 50) {
+				rectMovePosition.Visibility = Visibility.Collapsed;
+
+				if (isCornerScrollingDelay) { return; }
+				isCornerScrollingDelay = true;
+				DelayTimer(250, "isCornerScrollingDelay");
+
+				scrollNow.BeginAnimation(AniScrollViewer.CurrentVerticalOffsetProperty,
+							new DoubleAnimation(scrollNow.VerticalOffset, Math.Min(scrollNow.VerticalOffset + 150, scrollNow.ScrollableHeight), TimeSpan.FromMilliseconds(200)) {
+								EasingFunction = new ExponentialEase() { Exponent = 1, EasingMode = EasingMode.EaseOut },
+							});
+			} else {
+				rectMovePosition.Visibility = Visibility.Visible;
+
+				double pointAbsolute = scrollNow.VerticalOffset + pointMouseMove.Y - 50;		// 50 is height of titlebar
+				double dFixedHeight = 100;
+				if (nNowID == 0) { dFixedHeight = 60; }
+
+				double pointRelate = pointAbsolute - dFixedHeight;
+
+				int nHoverIndex = (int)pointRelate / 40;
+				nHoverIndex = Math.Max(0, nHoverIndex);
+				nHoverIndex = Math.Min(dictFeedItem[nNowID].Children.Count - 1, nHoverIndex);
+
+				int nDivideHeight = 10;
+				if (dictFeedItem[dictFeedItem[nNowID].Children[nHoverIndex]].IsFeed) { nDivideHeight = 20; }
+
+				double dRectPosition = 0;
+
+				// Mod 3 Case
+				// 0 == |--------------*|
+				// 1 == |*--------------|
+				// 2 == |-------*-------|
+
+				if (dFixedHeight == 100 && pointAbsolute >= 40 && pointAbsolute <= 80) {
+					// Back Position
+					nToIndex = 0;
+					dRectPosition = 40;
+					rectMovePosition.Height = 40;
+					rectMovePosition.Margin = new Thickness(0, dRectPosition, 0, 0);
+					return;
+				}
+
+
+
+				if (pointRelate < nHoverIndex * 40 + nDivideHeight) {
+					textTemp.Text = nHoverIndex + "번째의 앞에";
+
+					nToIndex = nHoverIndex * 3 + 1;
+
+					dRectPosition = nHoverIndex * 40 + dFixedHeight - 1;
+					rectMovePosition.Height = 2;
+
+				} else if (pointRelate >= (nHoverIndex + 1) * 40 - nDivideHeight) {
+					textTemp.Text = nHoverIndex + "번째의 뒤에";
+
+					nToIndex = nHoverIndex * 3 + 3;
+
+					dRectPosition = (nHoverIndex + 1) * 40 + dFixedHeight - 1;
+					rectMovePosition.Height = 2;
+
+				} else {
+					if (dictFeedItem[dictFeedItem[nNowID].Children[nHoverIndex]].IsFeed) { return; }
+					textTemp.Text = nHoverIndex + "의 안에";
+
+					nToIndex = nHoverIndex * 3 + 2;
+
+					dRectPosition = nHoverIndex * 40 + dFixedHeight;
+					rectMovePosition.Height = 40;
+				}
+
+				dRectPosition -= scrollNow.VerticalOffset;
+
+
+
+				//textTemp.Text = nHoverIndex.ToString();
+
+				/*double dRectPosition = Math.Max(dFixedHeight, ((int)(pointRelate + 20) / 40) * 40 + dFixedHeight);
+				dRectPosition = Math.Min(dRectPosition, ((int)(dictFeedItem[nNowID].Children.Count * 40 + 20) / 40) * 40 + dFixedHeight);
+				dRectPosition = dRectPosition - scrollNow.VerticalOffset - 1;
+				 */
+
+				rectMovePosition.Margin = new Thickness(0, dRectPosition, 0, 0);
+			}
+		}
+
+		// Mod 3 Case
+		// 0 == |--------------*|
+		// 1 == |*--------------|
+		// 2 == |-------*-------|
+
+		private void Feedlist_CompleteReorder(object sender, MouseButtonEventArgs e) {
+			isMouseDown = false;
+			nMouseMovingID = nMouseDownID = -1;
+			gridMoveStatus.Visibility = Visibility.Collapsed;
+
+			if (nToIndex < 0) { return; }
+
+			textTemp.Text = string.Format("Result : {0} -> {1}", nFromIndex, nToIndex);
+			int nSelectedTag = dictFeedItem[nNowID].Children[nFromIndex];
+			int nTowardTag = dictFeedItem[nNowID].Children[(nToIndex - 1) / 3];
+
+			int nOffset = 1;
+			if (nNowID != 0) { nOffset = 2; }
+
+			if (nToIndex == 0) {
+				// send to parent
+
+				dictFeedItem[dictFeedItem[nNowID].ParentID].Children.Add(nSelectedTag);
+				dictFeedItem[nSelectedTag].ParentID = dictFeedItem[nNowID].ParentID;
+
+				dictFeedItem[nNowID].Children.Remove(nSelectedTag);
+				stackNow.Children.RemoveAt(nFromIndex + nOffset);
+
+			} else if (nToIndex % 3 == 2) {
+				// put to other category
+
+				// Itself
+				if (nSelectedTag == nTowardTag) { return; }
+
+				dictFeedItem[nTowardTag].Children.Add(nSelectedTag);
+				dictFeedItem[nSelectedTag].ParentID = nTowardTag;
+
+				dictFeedItem[nNowID].Children.Remove(nSelectedTag);
+				stackNow.Children.RemoveAt(nFromIndex + nOffset);
+
+			} else {
+				int nAbsToIndex = (nToIndex - 1) / 3;
+				if (nFromIndex == nAbsToIndex) { return; }
+
+				if (nToIndex % 3 == 0) { nAbsToIndex++; }
+
+				int nBeforeOffset = 0;
+				if (nFromIndex < nAbsToIndex) { nBeforeOffset = 1; }
+
+				dictFeedItem[nNowID].Children.RemoveAt(nFromIndex);
+				dictFeedItem[nNowID].Children.Insert(nAbsToIndex - nBeforeOffset, nSelectedTag);
+
+				Button buttonMove = (Button)stackNow.Children[nFromIndex + nOffset];
+				stackNow.Children.RemoveAt(nFromIndex + nOffset);
+				stackNow.Children.Insert(nAbsToIndex - nBeforeOffset + nOffset, buttonMove);
+			}
+		}
+
+		private void DelayTimer(double time, string idTag) {
+			DispatcherTimer timerDelay = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(time), IsEnabled = true, Tag = idTag };
+			timerDelay.Tick += timerDelay_Tick;
+		}
+
+		private void timerDelay_Tick(object sender, EventArgs e) {
+			string id = (string)((DispatcherTimer)sender).Tag;
+
+			switch (id) {
+				case "isCornerScrollingDelay":
+					isCornerScrollingDelay = false;
+					((DispatcherTimer)sender).Stop();
+					break;
+			}
+			FeedlistMouseMoveEvent();
+		}
+
+
 
 		private void buttonFeedItem_Click(object sender, RoutedEventArgs e) {
 			string strTag = (string)((Button)sender).Tag;
 			int nID = Convert.ToInt32(strTag.Substring(1));
+
+			if (isMoving) { return; }
 
 			switch (strTag[0]) {
 				case 'A':

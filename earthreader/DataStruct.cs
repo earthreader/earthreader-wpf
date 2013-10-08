@@ -80,7 +80,7 @@ namespace earthreader {
 				HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
 			};
 			TextBlock text = new TextBlock() {
-				Margin = new System.Windows.Thickness(55, 0, 45, 0), HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+				Margin = new System.Windows.Thickness(45, 0, 45, 0), HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
 				VerticalAlignment = System.Windows.VerticalAlignment.Center, FontSize = 15, Foreground = Brushes.White,
 				TextTrimming = System.Windows.TextTrimming.CharacterEllipsis,
 			};
@@ -108,6 +108,27 @@ namespace earthreader {
 			grid.Children.Add(gridCount);
 
 			buttonBase.Content = grid;
+			return buttonBase;
+		}
+
+		public static Button GetFeedCandidateButton(string strCaption, string strURL) {
+			Button buttonBase = new Button() {
+				Height = 40, Tag = new KeyValuePair<string, string>(strCaption, strURL),
+				Background = Brushes.Transparent,
+				HorizontalContentAlignment = System.Windows.HorizontalAlignment.Stretch,
+			};
+
+			Grid grid = new Grid();
+			TextBlock text = new TextBlock() {
+				Text = strCaption,
+				Margin = new System.Windows.Thickness(20, 0, 20, 0), HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+				VerticalAlignment = System.Windows.VerticalAlignment.Center, FontSize = 15, Foreground = Brushes.White,
+				TextTrimming = System.Windows.TextTrimming.CharacterEllipsis,
+			};
+
+			grid.Children.Add(text);
+			buttonBase.Content = grid;
+
 			return buttonBase;
 		}
 	}
