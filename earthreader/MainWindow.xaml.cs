@@ -298,7 +298,7 @@ namespace earthreader {
 
 			scrollNow = isFirstView ? scrollFeedlist1 : scrollFeedlist2;
 
-			if (!isBack) { dictFeedItem[nNowID].ScrollOffset = scrollNow.VerticalOffset; }
+			if (!isBack) { dictFeedItem[nNowID].ScrollOffset = Math.Min(scrollNow.ScrollableHeight, scrollNow.VerticalOffset); }
 
 			nNowID = nID;
 			isFirstView = !isFirstView;
@@ -346,9 +346,9 @@ namespace earthreader {
 			}
 
 			if (isBack) {
-				scrollNow.BeginAnimation(AniScrollViewer.CurrentVerticalOffsetProperty, new DoubleAnimation(dictFeedItem[nID].ScrollOffset, TimeSpan.FromMilliseconds(0)));
+				scrollNow.ScrollToVerticalOffset(dictFeedItem[nID].ScrollOffset);
 			} else {
-				scrollNow.BeginAnimation(AniScrollViewer.CurrentVerticalOffsetProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(0)));
+				scrollNow.ScrollToTop();
 			}
 
 			AnimateFeedlist(isBack);
@@ -422,7 +422,7 @@ namespace earthreader {
 
 			nFromIndex = dictFeedItem[nNowID].Children.IndexOf(nMouseDownID);
 
-			textTemp.Text = nMouseDownID.ToString();
+			//textTemp.Text = nMouseDownID.ToString();
 		}
 
 		Point pointMouseMove;
@@ -564,7 +564,7 @@ namespace earthreader {
 
 			if (nToIndex < 0) { return; }
 
-			textTemp.Text = string.Format("Result : {0} -> {1}", nFromIndex, nToIndex);
+			//textTemp.Text = string.Format("Result : {0} -> {1}", nFromIndex, nToIndex);
 			int nSelectedTag = dictFeedItem[nNowID].Children[nFromIndex];
 			int nTowardTag = dictFeedItem[nNowID].Children[(nToIndex - 1) / 3];
 
