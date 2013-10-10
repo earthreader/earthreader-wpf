@@ -14,6 +14,7 @@ namespace earthreader {
 		public bool IsFeed;
 		public string URL;
 		public int ID, ParentID;
+		public double ScrollOffset = 0;
 		public List<int> Children;
 		public BitmapImage Favicon;
 

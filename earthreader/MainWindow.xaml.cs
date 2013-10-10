@@ -292,17 +292,21 @@ namespace earthreader {
 
 
 		bool isFirstView = true; int nNowID = 0;
-		StackPanel stackNow; ScrollViewer scrollNow;
+		StackPanel stackNow; AniScrollViewer scrollNow;
 		private void RefreshFeedList(int nID, bool isBack) {
 			if (isFeedlistAnimating) { return; }
+
+			scrollNow = isFirstView ? scrollFeedlist1 : scrollFeedlist2;
+
+			if (!isBack) { dictFeedItem[nNowID].ScrollOffset = scrollNow.VerticalOffset; }
 
 			nNowID = nID;
 			isFirstView = !isFirstView;
 
 			StackPanel stackPrev = isFirstView ? stackFeedlist2 : stackFeedlist1;
 			StackPanel stackNext = isFirstView ? stackFeedlist1 : stackFeedlist2;
-
 			scrollNow = isFirstView ? scrollFeedlist1 : scrollFeedlist2;
+
 			stackNow = stackNext;
 			stackNext.Children.Clear();
 
@@ -339,6 +343,12 @@ namespace earthreader {
 				}
 
 				stackNext.Children.Add(buttonItem);
+			}
+
+			if (isBack) {
+				scrollNow.BeginAnimation(AniScrollViewer.CurrentVerticalOffsetProperty, new DoubleAnimation(dictFeedItem[nID].ScrollOffset, TimeSpan.FromMilliseconds(0)));
+			} else {
+				scrollNow.BeginAnimation(AniScrollViewer.CurrentVerticalOffsetProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(0)));
 			}
 
 			AnimateFeedlist(isBack);
