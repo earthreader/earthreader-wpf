@@ -28,10 +28,15 @@ namespace earthreader {
 
 			InitializeComponent();
 
+			// Controlbox events
+
 			buttonMinimize.Click += (o, e) => Microsoft.Windows.Shell.SystemCommands.MinimizeWindow(Window.GetWindow(this));
 			buttonMaximize.Click += (o, e) => Microsoft.Windows.Shell.SystemCommands.MaximizeWindow(Window.GetWindow(this));
 			buttonRestore.Click += (o, e) => Microsoft.Windows.Shell.SystemCommands.RestoreWindow(Window.GetWindow(this));
 			buttonClose.Click += (o, e) => Microsoft.Windows.Shell.SystemCommands.CloseWindow(Window.GetWindow(this));
+
+			// Etc events
+
 			this.StateChanged += MainWindow_StateChanged;
 
 			this.MouseMove += MainWindow_MouseMove;
@@ -46,6 +51,8 @@ namespace earthreader {
 				}
 			};
 
+			// Autodiscovery timer trigger (default:3sec)
+
 			textboxInput.TextChanged += (o, e) => {
 				if (textboxInput.Text == "") { return; }
 				strGlobalLoadingURL = textboxInput.Text;
@@ -56,6 +63,8 @@ namespace earthreader {
 				dtm.Tick += dtm_Tick;
 				dtm.Start();
 			};
+
+			// Category adding process.
 
 			buttonAddAccept.Click += (o, e) => {
 				if (textboxInput.Text == "") {
@@ -85,13 +94,14 @@ namespace earthreader {
 			};
 
 			// Add root
+
 			dictFeedItem.Add(0, new FeedItem() {
 				ID = 0, Caption = "all feeds", Count = 1, ParentID = 0,
 				IsFeed = true, URL = "", Children = new List<int>(),
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconAll.png")),
 			});
 
-			// Test
+			// Test code (30 categories)
 
 			for (int i = 0; i < 30; i++) {
 				dictFeedItem.Add(nCount, new FeedItem() {
@@ -103,10 +113,79 @@ namespace earthreader {
 				nCount++;
 			}
 
-			// Test
-
 			RefreshFeedList(0, false);
 		}
+
+		// Feed & category add window animation
+
+		private void gridAddBackCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
+		private void buttonAdd_Click(object sender, RoutedEventArgs e) {
+			if (isAddWindowMode) {
+				gridAddWindow.IsHitTestVisible = false;
+				gridAddBackCover.IsHitTestVisible = false;
+			} else {
+				gridAddWindow.IsHitTestVisible = true;
+				gridAddBackCover.IsHitTestVisible = true;
+				gridAlert.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(0)));
+
+				textboxInput.Text = "";
+				stackListAutoDiscovery.Children.Clear();
+				textboxInput.Focus();
+			}
+			isAddWindowMode = !isAddWindowMode;
+
+			int nParameter = isAddWindowMode ? 1 : 0;
+			Storyboard sb = new Storyboard();
+			DoubleAnimation da = new DoubleAnimation(nParameter, TimeSpan.FromMilliseconds(250));
+			ThicknessAnimation ta = new ThicknessAnimation(new Thickness(0, 0, 0, -90 * (1 - nParameter)), TimeSpan.FromMilliseconds(250)) {
+				BeginTime = TimeSpan.FromMilliseconds(100 * nParameter),
+				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut }
+			};
+
+			Storyboard.SetTarget(da, gridAddWindow); Storyboard.SetTargetProperty(da, new PropertyPath(Grid.OpacityProperty));
+			Storyboard.SetTarget(ta, gridAddInnerWindow); Storyboard.SetTargetProperty(ta, new PropertyPath(Grid.MarginProperty));
+
+			sb.Children.Add(da); sb.Children.Add(ta);
+			sb.Begin(this);
+		}
+
+		// Controlbox event
+
+		private void MainWindow_StateChanged(object sender, EventArgs e) {
+			if (this.WindowState == WindowState.Normal) {
+				buttonRestore.Visibility = Visibility.Collapsed;
+				buttonMaximize.Visibility = Visibility.Visible;
+				gridMain.Margin = new Thickness(0);
+			} else {
+				buttonRestore.Visibility = Visibility.Visible;
+				buttonMaximize.Visibility = Visibility.Collapsed;
+				gridMain.Margin = new Thickness(5);
+			}
+		}
+
+		// Read mode select event
+
+		string strReadmode = "all";
+		private void buttonModeSelect_Click(object sender, RoutedEventArgs e) {
+			strReadmode = (string)((Button)sender).Tag;
+			int nMode = 0;
+
+			switch (strReadmode) {
+				case "all": nMode = 0; break;
+				case "unread": nMode = 1; break;
+				case "starred": nMode = 2; break;
+			}
+
+			imageModeAll.Visibility = nMode == 0 ? Visibility.Visible : Visibility.Collapsed;
+			imageModeUnread.Visibility = nMode == 1 ? Visibility.Visible : Visibility.Collapsed;
+			imageModeStarred.Visibility = nMode == 2 ? Visibility.Visible : Visibility.Collapsed;
+
+			buttonModeAll.Visibility = nMode != 0 ? Visibility.Visible : Visibility.Collapsed;
+			buttonModeUnread.Visibility = nMode != 1 ? Visibility.Visible : Visibility.Collapsed;
+			buttonModeStarred.Visibility = nMode != 2 ? Visibility.Visible : Visibility.Collapsed;
+		}
+
+		// Autodiscovery sample code
 
 		string strGlobalLoadingURL = "";
 		DispatcherTimer dtm = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(1500), IsEnabled = false };
@@ -140,6 +219,36 @@ namespace earthreader {
 			ShowMessage("", 0);
 		}
 
+		// Autodiscovery alert message function
+
+		private void ShowMessage(string message, double dTimeout) {
+			Storyboard sb = new Storyboard();
+
+			if (dTimeout > 0) {
+				ThicknessAnimation ta1 = new ThicknessAnimation(new Thickness(0, 0, 0, 50), TimeSpan.FromMilliseconds(200)) {
+					BeginTime = TimeSpan.FromMilliseconds(100),
+					EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
+				};
+				textMessage.Text = message;
+				Storyboard.SetTarget(ta1, gridAlert);
+				Storyboard.SetTargetProperty(ta1, new PropertyPath(Grid.MarginProperty));
+				sb.Children.Add(ta1);
+			}
+
+			ThicknessAnimation ta2 = new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(200)) {
+				BeginTime = TimeSpan.FromSeconds(dTimeout),
+				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
+			};
+
+			Storyboard.SetTarget(ta2, gridAlert);
+			Storyboard.SetTargetProperty(ta2, new PropertyPath(Grid.MarginProperty));
+
+			sb.Children.Add(ta2);
+			sb.Begin(this);
+		}
+
+		// Autodiscovery result click event (add feed process)
+
 		private void buttonFeedCandidate_Click(object sender, RoutedEventArgs e) {
 			KeyValuePair<string, string> kvp = (KeyValuePair<string, string>)((Button)sender).Tag;
 			string strCaption = kvp.Key, strURL = kvp.Value;
@@ -170,6 +279,8 @@ namespace earthreader {
 		int nFeedlistWidth = 250, nCount = 1;
 		Dictionary<int, FeedItem> dictFeedItem = new Dictionary<int, FeedItem>();
 
+		// Scrollbar visibility by cursor position
+
 		private void MainWindow_MouseMove(object sender, MouseEventArgs e) {
 			if (isAddWindowMode) {
 				ScrollBar s1 = scrollFeedlist1.Template.FindName("PART_VerticalScrollBar", scrollFeedlist1) as ScrollBar;
@@ -198,98 +309,8 @@ namespace earthreader {
 			}
 		}
 
-		private void MainWindow_StateChanged(object sender, EventArgs e) {
-			if (this.WindowState == WindowState.Normal) {
-				buttonRestore.Visibility = Visibility.Collapsed;
-				buttonMaximize.Visibility = Visibility.Visible;
-				gridMain.Margin = new Thickness(0);
-			} else {
-				buttonRestore.Visibility = Visibility.Visible;
-				buttonMaximize.Visibility = Visibility.Collapsed;
-				gridMain.Margin = new Thickness(5);
-			}
-		}
-
-		string strReadmode = "all";
-		private void buttonModeSelect_Click(object sender, RoutedEventArgs e) {
-			strReadmode = (string)((Button)sender).Tag;
-			int nMode = 0;
-
-			switch (strReadmode) {
-				case "all": nMode = 0; break;
-				case "unread": nMode = 1; break;
-				case "starred": nMode = 2; break;
-			}
-
-			imageModeAll.Visibility = nMode == 0 ? Visibility.Visible : Visibility.Collapsed;
-			imageModeUnread.Visibility = nMode == 1 ? Visibility.Visible : Visibility.Collapsed;
-			imageModeStarred.Visibility = nMode == 2 ? Visibility.Visible : Visibility.Collapsed;
-
-			buttonModeAll.Visibility = nMode != 0 ? Visibility.Visible : Visibility.Collapsed;
-			buttonModeUnread.Visibility = nMode != 1 ? Visibility.Visible : Visibility.Collapsed;
-			buttonModeStarred.Visibility = nMode != 2 ? Visibility.Visible : Visibility.Collapsed;
-		}
-
-		private void gridAddBackCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
-		private void gridDialogBackCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonPopupCancel.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
-
-		private void buttonAdd_Click(object sender, RoutedEventArgs e) {
-			if (isAddWindowMode) {
-				gridAddWindow.IsHitTestVisible = false;
-				gridAddBackCover.IsHitTestVisible = false;
-			} else {
-				gridAddWindow.IsHitTestVisible = true;
-				gridAddBackCover.IsHitTestVisible = true;
-				gridAlert.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(0)));
-
-				textboxInput.Text = "";
-				stackListAutoDiscovery.Children.Clear();
-				textboxInput.Focus();
-			}
-			isAddWindowMode = !isAddWindowMode;
-
-			int nParameter = isAddWindowMode ? 1 : 0;
-			Storyboard sb = new Storyboard();
-			DoubleAnimation da = new DoubleAnimation(nParameter, TimeSpan.FromMilliseconds(250));
-			ThicknessAnimation ta = new ThicknessAnimation(new Thickness(0, 0, 0, -90 * (1 - nParameter)), TimeSpan.FromMilliseconds(250)) {
-				BeginTime = TimeSpan.FromMilliseconds(100 * nParameter),
-				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut }
-			};
-
-			Storyboard.SetTarget(da, gridAddWindow); Storyboard.SetTargetProperty(da, new PropertyPath(Grid.OpacityProperty));
-			Storyboard.SetTarget(ta, gridAddInnerWindow); Storyboard.SetTargetProperty(ta, new PropertyPath(Grid.MarginProperty));
-
-			sb.Children.Add(da); sb.Children.Add(ta);
-			sb.Begin(this);
-		}
-
-
-		private void ShowMessage(string message, double dTimeout) {
-			Storyboard sb = new Storyboard();
-
-			if (dTimeout > 0) {
-				ThicknessAnimation ta1 = new ThicknessAnimation(new Thickness(0, 0, 0, 50), TimeSpan.FromMilliseconds(200)) {
-					BeginTime = TimeSpan.FromMilliseconds(100),
-					EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
-				};
-				textMessage.Text = message;
-				Storyboard.SetTarget(ta1, gridAlert);
-				Storyboard.SetTargetProperty(ta1, new PropertyPath(Grid.MarginProperty));
-				sb.Children.Add(ta1);
-			}
-
-			ThicknessAnimation ta2 = new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(200)) {
-				BeginTime = TimeSpan.FromSeconds(dTimeout),
-				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
-			};
-
-			Storyboard.SetTarget(ta2, gridAlert);
-			Storyboard.SetTargetProperty(ta2, new PropertyPath(Grid.MarginProperty));
-
-			 sb.Children.Add(ta2);
-			sb.Begin(this);
-		}
-
+		// Refresh feedlist by ID number
+		#region Refresh feedlist by ID number
 
 		bool isFirstView = true; int nNowID = 0;
 		StackPanel stackNow; AniScrollViewer scrollNow;
@@ -407,6 +428,11 @@ namespace earthreader {
 			sb.Begin(this);
 		}
 
+		#endregion
+
+		#region Feeditem moving event
+
+		// Moving event : PreviewMouseDown
 
 		int nMouseDownID = -1, nMouseMovingID = -1; Point pointMouseDown; bool isMoving;
 		private void buttonFeedItem_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
@@ -424,6 +450,8 @@ namespace earthreader {
 
 			//textTemp.Text = nMouseDownID.ToString();
 		}
+
+		// Moving event : MouseMove
 
 		Point pointMouseMove;
 		private void Feedlist_OrderChange(object sender, MouseEventArgs e) {
@@ -538,23 +566,11 @@ namespace earthreader {
 
 				dRectPosition -= scrollNow.VerticalOffset;
 
-
-
-				//textTemp.Text = nHoverIndex.ToString();
-
-				/*double dRectPosition = Math.Max(dFixedHeight, ((int)(pointRelate + 20) / 40) * 40 + dFixedHeight);
-				dRectPosition = Math.Min(dRectPosition, ((int)(dictFeedItem[nNowID].Children.Count * 40 + 20) / 40) * 40 + dFixedHeight);
-				dRectPosition = dRectPosition - scrollNow.VerticalOffset - 1;
-				 */
-
 				rectMovePosition.Margin = new Thickness(0, dRectPosition, 0, 0);
 			}
 		}
 
-		// Mod 3 Case
-		// 0 == |--------------*|
-		// 1 == |*--------------|
-		// 2 == |-------*-------|
+		// Moving event : Mouse up, complete moving
 
 		private void Feedlist_CompleteReorder(object sender, MouseButtonEventArgs e) {
 			if (nMouseDownID < 0 || isDialogMode) { return; }
@@ -610,6 +626,8 @@ namespace earthreader {
 			}
 		}
 
+		// Scroll event by cornering cursor
+
 		private void DelayTimer(double time, string idTag) {
 			DispatcherTimer timerDelay = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(time), IsEnabled = true, Tag = idTag };
 			timerDelay.Tick += timerDelay_Tick;
@@ -627,29 +645,12 @@ namespace earthreader {
 			FeedlistMouseMoveEvent();
 		}
 
+		#endregion
+
+		#region Feed item context menu
+
 		private void buttonFeedItemContext_Click(object sender, RoutedEventArgs e) {
 			ShowCommonDialog((string)((MenuItem)sender).Tag);
-			/*
-			string ID = ((string)((MenuItem)sender).Tag).Substring(1);
-			char cType = ((string)((MenuItem)sender).Tag)[0];
-
-			switch (cType) {
-				case 'R':
-					
-					nCommandType = 1; nCommandTag = tag;
-					ShowAlertMessage("바꿀 이름을 입력하세요.", 2);
-					break;
-					MessageBox.Show("Rename" + ID);
-					break;
-				case 'D':
-					
-					nCommandType = 2; nCommandTag = tag;
-					ShowAlertMessage(string.Format("정말로 지우시겠습니까? \'{0}\'", dictFeedlist[tag].Caption), 3);
-					//DeleteFeedItem(tag);
-					MessageBox.Show("Remove" + ID);
-					break;
-			}
-			*/
 		}
 
 		char strDialogType = 'N'; int nDialogID = -1;
@@ -735,6 +736,7 @@ namespace earthreader {
 			isDialogMode = false;
 		}
 
+		private void gridDialogBackCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonPopupCancel.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
 		private void buttonPopupCancel_Click(object sender, RoutedEventArgs e) {
 			isDialogMode = false;
 			gridDialog.IsHitTestVisible = false;
@@ -758,6 +760,8 @@ namespace earthreader {
 			sb.Children.Add(da2);
 			sb.Begin(this);
 		}
+
+		#endregion
 
 		private void buttonFeedItem_Click(object sender, RoutedEventArgs e) {
 			string strTag = (string)((Button)sender).Tag;
