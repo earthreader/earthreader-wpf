@@ -74,6 +74,23 @@ namespace earthreader {
 				Margin = new System.Windows.Thickness(0, 0, 0, margin),
 			};
 
+			ContextMenu context = new ContextMenu() { HasDropShadow = false };
+
+			if (strTag[0] == 'C') {
+				MenuItem mItem1 = new MenuItem() { Header = "Rename", Tag = "R" + feedItem.ID };
+				context.Items.Add(mItem1);
+			}
+			if (strTag[0] == 'C' || strTag[0] == 'F') {
+				MenuItem mItem2 = new MenuItem() { Header = feedItem.Caption, Tag = "D" + feedItem.ID, HeaderStringFormat = "Delete {0}" };
+
+				Binding binding0 = new Binding("Caption");
+				binding0.Source = feedItem;
+				mItem2.SetBinding(MenuItem.HeaderProperty, binding0);
+
+				context.Items.Add(mItem2);
+				buttonBase.ContextMenu = context;
+			}
+
 			Grid grid = new Grid();
 			Image image = new Image() {
 				Source = feedItem.Favicon, Width = 30, Height = 30, Margin = new System.Windows.Thickness(5),

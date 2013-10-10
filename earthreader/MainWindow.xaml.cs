@@ -73,6 +73,11 @@ namespace earthreader {
 				Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[nCount], "C" + nCount, 0);
 				buttonItem.Click += buttonFeedItem_Click;
 				buttonItem.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
+
+				foreach (MenuItem mItem in buttonItem.ContextMenu.Items) {
+					mItem.Click += buttonFeedItemContext_Click;
+				}
+
 				stackNow.Children.Add(buttonItem);
 
 				nCount++;
@@ -149,14 +154,19 @@ namespace earthreader {
 			Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[nCount], "F" + nCount, 0);
 			buttonItem.Click += buttonFeedItem_Click;
 			buttonItem.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
+
+			foreach (MenuItem mItem in buttonItem.ContextMenu.Items) {
+				mItem.Click += buttonFeedItemContext_Click;
+			}
+
 			stackNow.Children.Add(buttonItem);
 
 			nCount++;
 			buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
 		}
 
-		
-		bool isScrollVisible = false, isMouseDown, isAddWindowMode;
+
+		bool isScrollVisible = false, isMouseDown, isAddWindowMode, isDialogMode;
 		int nFeedlistWidth = 250, nCount = 1;
 		Dictionary<int, FeedItem> dictFeedItem = new Dictionary<int, FeedItem>();
 
@@ -221,6 +231,8 @@ namespace earthreader {
 		}
 
 		private void gridAddBackCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
+		private void gridDialogBackCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonPopupCancel.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
+
 		private void buttonAdd_Click(object sender, RoutedEventArgs e) {
 			if (isAddWindowMode) {
 				gridAddWindow.IsHitTestVisible = false;
@@ -228,7 +240,7 @@ namespace earthreader {
 			} else {
 				gridAddWindow.IsHitTestVisible = true;
 				gridAddBackCover.IsHitTestVisible = true;
-				gridMessage.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(0)));
+				gridAlert.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(0)));
 
 				textboxInput.Text = "";
 				stackListAutoDiscovery.Children.Clear();
@@ -261,7 +273,7 @@ namespace earthreader {
 					EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
 				};
 				textMessage.Text = message;
-				Storyboard.SetTarget(ta1, gridMessage);
+				Storyboard.SetTarget(ta1, gridAlert);
 				Storyboard.SetTargetProperty(ta1, new PropertyPath(Grid.MarginProperty));
 				sb.Children.Add(ta1);
 			}
@@ -271,7 +283,7 @@ namespace earthreader {
 				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
 			};
 
-			Storyboard.SetTarget(ta2, gridMessage);
+			Storyboard.SetTarget(ta2, gridAlert);
 			Storyboard.SetTargetProperty(ta2, new PropertyPath(Grid.MarginProperty));
 
 			 sb.Children.Add(ta2);
@@ -321,6 +333,11 @@ namespace earthreader {
 				Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[fItemTag], strTag + fItemTag, 0);
 				buttonItem.Click += buttonFeedItem_Click;
 				buttonItem.PreviewMouseDown += buttonFeedItem_PreviewMouseDown;
+
+				foreach (MenuItem mItem in buttonItem.ContextMenu.Items) {
+					mItem.Click += buttonFeedItemContext_Click;
+				}
+
 				stackNext.Children.Add(buttonItem);
 			}
 
@@ -383,6 +400,7 @@ namespace earthreader {
 
 		int nMouseDownID = -1, nMouseMovingID = -1; Point pointMouseDown; bool isMoving;
 		private void buttonFeedItem_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+			if (isDialogMode) { return; }
 			string strTag = (string)((Button)sender).Tag;
 			isMoving = false;
 			nToIndex = -1;
@@ -399,7 +417,7 @@ namespace earthreader {
 
 		Point pointMouseMove;
 		private void Feedlist_OrderChange(object sender, MouseEventArgs e) {
-			if (!isMouseDown || nMouseDownID < 0) { return; }
+			if (!isMouseDown || nMouseDownID < 0 || isDialogMode) { return; }
 			pointMouseMove = e.GetPosition(this);
 
 			if (Math.Max(Math.Abs(pointMouseDown.X - pointMouseMove.X), Math.Abs(pointMouseDown.Y - pointMouseMove.Y)) >= 5 && !isMoving) {
@@ -416,7 +434,7 @@ namespace earthreader {
 
 		bool isCornerScrollingDelay; int nFromIndex, nToIndex;
 		private void FeedlistMouseMoveEvent() {
-			if (!isMouseDown) { return; }
+			if (!isMouseDown || isDialogMode) { return; }
 
 			if (pointMouseMove.X < 0 || pointMouseMove.X > widthFeedlist.Width.Value || pointMouseMove.Y < 0 || pointMouseMove.Y > this.ActualHeight) {
 				nToIndex = -1;
@@ -482,8 +500,6 @@ namespace earthreader {
 					return;
 				}
 
-
-
 				if (pointRelate < nHoverIndex * 40 + nDivideHeight) {
 					textTemp.Text = nHoverIndex + "번째의 앞에";
 
@@ -531,6 +547,7 @@ namespace earthreader {
 		// 2 == |-------*-------|
 
 		private void Feedlist_CompleteReorder(object sender, MouseButtonEventArgs e) {
+			if (nMouseDownID < 0 || isDialogMode) { return; }
 			isMouseDown = false;
 			nMouseMovingID = nMouseDownID = -1;
 			gridMoveStatus.Visibility = Visibility.Collapsed;
@@ -600,7 +617,137 @@ namespace earthreader {
 			FeedlistMouseMoveEvent();
 		}
 
+		private void buttonFeedItemContext_Click(object sender, RoutedEventArgs e) {
+			ShowCommonDialog((string)((MenuItem)sender).Tag);
+			/*
+			string ID = ((string)((MenuItem)sender).Tag).Substring(1);
+			char cType = ((string)((MenuItem)sender).Tag)[0];
 
+			switch (cType) {
+				case 'R':
+					
+					nCommandType = 1; nCommandTag = tag;
+					ShowAlertMessage("바꿀 이름을 입력하세요.", 2);
+					break;
+					MessageBox.Show("Rename" + ID);
+					break;
+				case 'D':
+					
+					nCommandType = 2; nCommandTag = tag;
+					ShowAlertMessage(string.Format("정말로 지우시겠습니까? \'{0}\'", dictFeedlist[tag].Caption), 3);
+					//DeleteFeedItem(tag);
+					MessageBox.Show("Remove" + ID);
+					break;
+			}
+			*/
+		}
+
+		char strDialogType = 'N'; int nDialogID = -1;
+		private void ShowCommonDialog(string strArgs) {
+			strDialogType = strArgs[0];
+			nDialogID = Convert.ToInt32(strArgs.Substring(1));
+
+			switch (strDialogType) {
+				case 'R':
+					// Rename
+					textFormType.Text = "Rename item";
+					textboxTitle.Text = "";
+					textboxTitle.Tag = dictFeedItem[nDialogID].Caption;
+
+					textboxTitle.Visibility = Visibility.Visible;
+					textDialogMessage.Visibility = Visibility.Collapsed;
+
+					textboxTitle.Focus();
+					break;
+
+				case 'D':
+					// Delete
+					textFormType.Text = "Question";
+					textDialogMessage.Text = string.Format("{0} 지울거임", dictFeedItem[nDialogID].Caption);
+
+					if (!dictFeedItem[nDialogID].IsFeed) {
+						textDialogMessage.Text += "\n카테고리의 경우 내부까지 전부 지워짐";
+					}
+
+					textboxTitle.Visibility = Visibility.Collapsed;
+					textDialogMessage.Visibility = Visibility.Visible;
+					break;
+			}
+
+			isDialogMode = true;
+			gridDialog.IsHitTestVisible = true;
+			gridDialog.BeginAnimation(Grid.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+		}
+
+		private void buttonPopupOK_Click(object sender, RoutedEventArgs e) {
+			switch (strDialogType) {
+				case 'R':
+
+					if (textboxTitle.Text == "") {
+						ShowTopMessage("Title can't be empty");
+						textboxTitle.Focus(); return;
+					}
+
+					dictFeedItem[nDialogID].Caption = textboxTitle.Text;
+
+					break;
+
+				case 'D':
+					// Delete
+
+					int nOffset = 1;
+					if (nNowID != 0) { nOffset = 2; }
+
+					int nIndex = dictFeedItem[nNowID].Children.IndexOf(nDialogID);
+					stackNow.Children.RemoveAt(nIndex + nOffset);
+
+					dictFeedItem[nNowID].Children.Remove(nDialogID);
+
+					Queue<int> q = new Queue<int>();
+					q.Enqueue(nDialogID);
+
+					int nVertex;
+					for (; q.Count > 0; ) {
+						nVertex = q.Dequeue();
+						if (!dictFeedItem[nVertex].IsFeed) {
+							foreach (int i in dictFeedItem[nVertex].Children) {
+								q.Enqueue(i);
+							}
+						}
+
+						dictFeedItem.Remove(nVertex);
+					}
+
+					break;
+			}
+
+			buttonPopupCancel.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+			isDialogMode = false;
+		}
+
+		private void buttonPopupCancel_Click(object sender, RoutedEventArgs e) {
+			isDialogMode = false;
+			gridDialog.IsHitTestVisible = false;
+			gridDialog.BeginAnimation(Grid.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(150)));
+		}
+
+		private void ShowTopMessage(string strMessage) {
+			textTopMessage.Text = strMessage;
+
+			Storyboard sb = new Storyboard();
+			DoubleAnimation da1 = new DoubleAnimation(1, 1, TimeSpan.FromMilliseconds(2500));
+			Storyboard.SetTarget(da1, textTopMessage);
+			Storyboard.SetTargetProperty(da1, new PropertyPath(TextBlock.OpacityProperty));
+
+			DoubleAnimation da2 = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(500));
+			Storyboard.SetTarget(da2, textTopMessage);
+			Storyboard.SetTargetProperty(da2, new PropertyPath(TextBlock.OpacityProperty));
+			da2.BeginTime = TimeSpan.FromMilliseconds(1500);
+
+			sb.Children.Add(da1);
+			sb.Children.Add(da2);
+			sb.Begin(this);
+		}
 
 		private void buttonFeedItem_Click(object sender, RoutedEventArgs e) {
 			string strTag = (string)((Button)sender).Tag;

@@ -96,7 +96,7 @@
                 </Grid>
 
                 <Grid x:Name="gridAddInnerWindow" Margin="0,0,0,-50" Height="80" VerticalAlignment="Bottom">
-                    <Grid x:Name="gridMessage" Height="30" Background="Crimson" VerticalAlignment="Bottom" Margin="0,0,0,0">
+                    <Grid x:Name="gridAlert" Height="30" Background="Crimson" VerticalAlignment="Bottom" Margin="0,0,0,0">
                         <TextBlock x:Name="textMessage" Text="A" FontSize="13.33" Foreground="White" VerticalAlignment="Center" TextAlignment="Center" Margin="0,-4,0,0"/>
                     </Grid>
                     
@@ -147,6 +147,30 @@
                 </Grid.Background>
                 <TextBlock x:Name="textNowMoving" Text="Hello World" VerticalAlignment="Center" FontSize="16" Margin="10,0,10,0" Foreground="White" TextTrimming="CharacterEllipsis"/>
             </Grid>
+        </Grid>
+        
+        <Grid x:Name="gridDialog" Opacity="0" Grid.Row="1" Grid.RowSpan="2" IsHitTestVisible="False" Background="Transparent">
+            <Grid x:Name="gridDialogBackCover" Background="#88000000" MouseDown="gridDialogBackCover_MouseDown"/>
+            <StackPanel Background="White" Margin="20,0,20,0" VerticalAlignment="Center">
+                <Grid Height="40">
+                    <TextBlock x:Name="textFormType" Text="Question" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" FontSize="16" Foreground="{DynamicResource sColor}"/>
+                    <TextBlock x:Name="textTopMessage" Opacity="0" Text="Message" Foreground="White" Padding="10" Background="{DynamicResource sColor}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" HorizontalAlignment="Stretch"/>
+                </Grid>
+                <TextBox x:Name="textboxTitle" Margin="5,5,5,10" FontSize="13.33" Tag="Enter the title" />
+                <TextBlock x:Name="textDialogMessage" Text="Message Content" FontSize="13.33" Margin="10,5,10,10" MaxHeight="110" TextWrapping="Wrap" TextAlignment="Center"/>
+                <Grid Background="LightGray">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="buttonPopupOK" Grid.Column="0" BorderThickness="0,1,1,0" Height="30" Style="{DynamicResource FlatMessageButton}" Background="White" Click="buttonPopupOK_Click">
+                        <TextBlock Text="Ok" FontSize="13.33" Foreground="{DynamicResource sColor}"/>
+                    </Button>
+                    <Button x:Name="buttonPopupCancel" Grid.Column="1" BorderThickness="0,1,0,0" Height="30" Style="{DynamicResource FlatMessageButton}" Background="White" Click="buttonPopupCancel_Click">
+                        <TextBlock Text="Cancel" FontSize="13.33" Foreground="{DynamicResource sColor}"/>
+                    </Button>
+                </Grid>
+            </StackPanel>
         </Grid>
 
         <!-- Titlebar -->
