@@ -16,7 +16,7 @@
             >
         </shell:WindowChrome>
     </shell:WindowChrome.WindowChrome>
-    
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -24,50 +24,51 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    
-    <Grid x:Name="gridMain">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="widthFeedlist" Width="250" MinWidth="200" MaxWidth="380"/>
-            <ColumnDefinition Width="400"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        
-        <GridSplitter x:Name="gridsplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
-        <!-- 
-        <GridSplitter Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
-        -->
-        
-        <Grid Background="#393836" Grid.Row="1">
+
+    <Grid>
+        <Grid x:Name="gridMain">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
                 <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Grid x:Name="gridFeedlist">
-                <local:AniScrollViewer x:Name="scrollFeedlist2" Style="{DynamicResource ScrollViewerStyle2}">
-                    <StackPanel x:Name="stackFeedlist2" Visibility="Visible" Background="#393836">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="widthFeedlist" Width="250" MinWidth="200" MaxWidth="380"/>
+                <ColumnDefinition Width="700"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                    </StackPanel>
-
-                </local:AniScrollViewer>
-
-                <local:AniScrollViewer x:Name="scrollFeedlist1" Style="{DynamicResource ScrollViewerStyle2}">
-                    <StackPanel x:Name="stackFeedlist1" Visibility="Visible" Background="#393836">
-                        <Button Height="50" HorizontalContentAlignment="Stretch" Background="Transparent">
-                            <Grid>
-                                <TextBlock Text="Now Loading..." Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="25,0,0,0" FontSize="16"/>
-                            </Grid>
-                        </Button>
-                    </StackPanel>
-                </local:AniScrollViewer>
-            </Grid>
-
+            <GridSplitter x:Name="gridsplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
+            <GridSplitter Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
             <!-- 
+        -->
+
+            <Grid Background="#393836" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+
+                <Grid x:Name="gridFeedlist">
+                    <local:AniScrollViewer x:Name="scrollFeedlist2" Style="{DynamicResource ScrollViewerStyle2}">
+                        <StackPanel x:Name="stackFeedlist2" Visibility="Visible" Background="#393836">
+
+                        </StackPanel>
+
+                    </local:AniScrollViewer>
+
+                    <local:AniScrollViewer x:Name="scrollFeedlist1" Style="{DynamicResource ScrollViewerStyle2}">
+                        <StackPanel x:Name="stackFeedlist1" Visibility="Visible" Background="#393836">
+                            <Button Height="50" HorizontalContentAlignment="Stretch" Background="Transparent">
+                                <Grid>
+                                    <TextBlock Text="Now Loading..." Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="25,0,0,0" FontSize="16"/>
+                                </Grid>
+                            </Button>
+                        </StackPanel>
+                    </local:AniScrollViewer>
+                </Grid>
+
+                <!-- 
                     <Button x:Name="buttonViewAll" Grid.Row="0" Height="50" Background="#21201f" VerticalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal">
                             <Image Width="30" Source="/Resources/iconAll.png" Margin="-10,0,5,0"/>
@@ -76,13 +77,13 @@
                     </Button>
                     -->
 
-            <Grid x:Name="gridAddWindow" Opacity="0">
-                <Grid x:Name="gridAddBackCover" Background="#88000000" MouseDown="gridAddBackCover_MouseDown" IsHitTestVisible="False"/>
-                
-                <Grid Margin="0,50,0,50">
-                    <local:AniScrollViewer Style="{DynamicResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto" VerticalAlignment="Bottom">
-                        <StackPanel x:Name="stackListAutoDiscovery" VerticalAlignment="Bottom" Background="{DynamicResource sColor}">
-                            <!-- 
+                <Grid x:Name="gridAddWindow" Opacity="0">
+                    <Grid x:Name="gridAddBackCover" Background="#88000000" MouseDown="gridAddBackCover_MouseDown" IsHitTestVisible="False"/>
+
+                    <Grid Margin="0,50,0,50">
+                        <local:AniScrollViewer Style="{DynamicResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto" VerticalAlignment="Bottom">
+                            <StackPanel x:Name="stackListAutoDiscovery" VerticalAlignment="Bottom" Background="{DynamicResource sColor}">
+                                <!-- 
                             <Rectangle Height="100" Fill="Transparent"/>
                             <Rectangle Height="100" Fill="Blue"/>
                             <Rectangle Height="100" Fill="Green"/>
@@ -91,91 +92,151 @@
                             <Rectangle Height="100" Fill="DarkTurquoise"/>
                             <Rectangle Height="100" Fill="Yellow"/>
                             -->
-                        </StackPanel>
-                    </local:AniScrollViewer>
-                </Grid>
-
-                <Grid x:Name="gridAddInnerWindow" Margin="0,0,0,-50" Height="80" VerticalAlignment="Bottom">
-                    <Grid x:Name="gridAlert" Height="30" Background="Crimson" VerticalAlignment="Bottom" Margin="0,0,0,0">
-                        <TextBlock x:Name="textMessage" Text="A" FontSize="13.33" Foreground="White" VerticalAlignment="Center" TextAlignment="Center" Margin="0,-4,0,0"/>
+                            </StackPanel>
+                        </local:AniScrollViewer>
                     </Grid>
-                    
-                    <Rectangle Height="50" Fill="{DynamicResource sColorDeep}" VerticalAlignment="Bottom"/>
-                    
-                    <!-- 
+
+                    <Grid x:Name="gridAddInnerWindow" Margin="0,0,0,-50" Height="80" VerticalAlignment="Bottom">
+                        <Grid x:Name="gridAlert" Height="30" Background="Crimson" VerticalAlignment="Bottom" Margin="0,0,0,0">
+                            <TextBlock x:Name="textMessage" Text="A" FontSize="13.33" Foreground="White" VerticalAlignment="Center" TextAlignment="Center" Margin="0,-4,0,0"/>
+                        </Grid>
+
+                        <Rectangle Height="50" Fill="{DynamicResource sColorDeep}" VerticalAlignment="Bottom"/>
+
+                        <!-- 
                     <TextBox x:Name="textboxFeedInput" Margin="40,10,10,10" Height="30" FontSize="14" Tag="Enter your feed URL" VerticalAlignment="Top"/>
                     <Button x:Name="buttonFeedAccept" Margin="10,10,10,0" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
                         <Image Width="30" Source="/Resources/iconFeed.png"/>
                     </Button>
                     -->
-                    
-                    <TextBox x:Name="textboxInput" Margin="10,10,40,10" Height="30" FontSize="14" Tag="Feed URL or category's name" VerticalAlignment="Bottom"/>
-                    <Button x:Name="buttonAddAccept" Margin="10,10,10,10" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource FlatButton}">
-                        <Image Width="30" Source="/Resources/iconCategory.png"/>
-                    </Button>
-                </Grid>
-            </Grid>
-            
 
-            <Grid Background="{DynamicResource sColor}" Grid.Row="1">
-                <Button x:Name="buttonAdd" Grid.Row="0" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top" Click="buttonAdd_Click" Style="{DynamicResource FlatButton}">
-                    <Grid Height="50" Width="50">
-                        <Grid Width="50" Height="50" Background="{DynamicResource sColorDeep}">
-                            <Image Width="25" Source="/Resources/iconAdd.png"/>
-                        </Grid>
+                        <TextBox x:Name="textboxInput" Margin="10,10,40,10" Height="30" FontSize="14" Tag="Feed URL or category's name" VerticalAlignment="Bottom"/>
+                        <Button x:Name="buttonAddAccept" Margin="10,10,10,10" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource FlatButton}">
+                            <Image Width="30" Source="/Resources/iconCategory.png"/>
+                        </Button>
                     </Grid>
-                </Button>
-                <Button x:Name="buttonSetting" Grid.Row="0" Margin="50,0,0,0" Background="Transparent" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
-                    <Grid Height="50" Width="50">
-                        <Grid Width="50" Height="50" Background="{DynamicResource sColorDeep}">
-                            <Image Width="40" Source="/Resources/iconSetting.png"/>
+                </Grid>
+
+
+                <Grid Background="{DynamicResource sColor}" Grid.Row="1">
+                    <Button x:Name="buttonAdd" Grid.Row="0" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top" Click="buttonAdd_Click" Style="{DynamicResource FlatButton}">
+                        <Grid Height="50" Width="50">
+                            <Grid Width="50" Height="50" Background="{DynamicResource sColorDeep}">
+                                <Image Width="25" Source="/Resources/iconAdd.png"/>
+                            </Grid>
                         </Grid>
+                    </Button>
+                    <Button x:Name="buttonSetting" Grid.Row="0" Margin="50,0,0,0" Background="Transparent" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
+                        <Grid Height="50" Width="50">
+                            <Grid Width="50" Height="50" Background="{DynamicResource sColorDeep}">
+                                <Image Width="40" Source="/Resources/iconSetting.png"/>
+                            </Grid>
+                        </Grid>
+                    </Button>
+                    <TextBlock x:Name="textTemp" Text="??" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                </Grid>
+            </Grid>
+
+            <Grid x:Name="gridMoveStatus" Visibility="Collapsed" Grid.Row="1" Margin="0,0,0,50" Grid.Column="0" Grid.ColumnSpan="3" IsHitTestVisible="False">
+                <Border x:Name="rectMovePosition" Height="2" Margin="0,200,0,0" Width="250" VerticalAlignment="Top" BorderBrush="White" BorderThickness="2" HorizontalAlignment="Left">
+                    <Grid Background="Black" Opacity="0.3"/>
+                </Border>
+
+                <Grid x:Name="gridNowMoving" Height="40" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Grid.Background>
+                        <SolidColorBrush Color="{DynamicResource cColor}" Opacity="0.7"/>
+                    </Grid.Background>
+                    <TextBlock x:Name="textNowMoving" Text="Hello World" VerticalAlignment="Center" FontSize="16" Margin="10,0,10,0" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+            </Grid>
+
+            <Grid x:Name="gridDialog" Opacity="0" Grid.Row="1" Grid.RowSpan="2" IsHitTestVisible="False" Background="Transparent">
+                <Grid x:Name="gridDialogBackCover" Background="#88000000" MouseDown="gridDialogBackCover_MouseDown"/>
+                <StackPanel Background="White" Margin="20,0,20,0" VerticalAlignment="Center">
+                    <Grid Height="40">
+                        <TextBlock x:Name="textFormType" Text="Question" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" FontSize="16" Foreground="{DynamicResource sColor}"/>
+                        <TextBlock x:Name="textTopMessage" Opacity="0" Text="Message" Foreground="White" Padding="10" Background="{DynamicResource sColor}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" HorizontalAlignment="Stretch"/>
                     </Grid>
-                </Button>
-                <TextBlock x:Name="textTemp" Text="??" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="textboxTitle" Margin="5,5,5,10" FontSize="13.33" Tag="Enter the title" />
+                    <TextBlock x:Name="textDialogMessage" Text="Message Content" FontSize="13.33" Margin="10,5,10,10" MaxHeight="110" TextWrapping="Wrap" TextAlignment="Center"/>
+                    <Grid Background="LightGray">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="buttonPopupOK" Grid.Column="0" BorderThickness="0,1,1,0" Height="30" Style="{DynamicResource FlatMessageButton}" Background="White" Click="buttonPopupOK_Click">
+                            <TextBlock Text="Ok" FontSize="13.33" Foreground="{DynamicResource sColor}"/>
+                        </Button>
+                        <Button x:Name="buttonPopupCancel" Grid.Column="1" BorderThickness="0,1,0,0" Height="30" Style="{DynamicResource FlatMessageButton}" Background="White" Click="buttonPopupCancel_Click">
+                            <TextBlock Text="Cancel" FontSize="13.33" Foreground="{DynamicResource sColor}"/>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+
+            <Rectangle Fill="{DynamicResource sColor}" Grid.Column="0" Grid.ColumnSpan="3"/>
+
+            <!-- Read Mode -->
+            <Grid Grid.Column="1" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <StackPanel Orientation="Horizontal">
+                    <Grid>
+                        <Button x:Name="buttonModeAll" Background="Transparent" Width="50" Visibility="Collapsed" Tag="all" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
+                            <Image Source="/Resources/text/textall_no.png"/>
+                        </Button>
+                        <Image x:Name="imageModeAll" Width="50" Source="/Resources/text/textall.png" IsHitTestVisible="False"/>
+                    </Grid>
+                    <Grid>
+                        <Button x:Name="buttonModeUnread" Background="Transparent" Width="100" Tag="unread" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
+                            <Image Source="/Resources/text/textunread_no.png"/>
+                        </Button>
+                        <Image x:Name="imageModeUnread" Width="100" Source="/Resources/text/textunread.png" IsHitTestVisible="False" Visibility="Collapsed"/>
+                    </Grid>
+                    <Grid>
+                        <Button x:Name="buttonModeStarred" Background="Transparent" Width="100" Tag="starred" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
+                            <Image Source="/Resources/text/textstarred_no.png"/>
+                        </Button>
+                        <Image x:Name="imageModeStarred" Width="100" Source="/Resources/text/textstarred.png" IsHitTestVisible="False" Visibility="Collapsed"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Grid.Column="1">
+                <ListBox x:Name="listEntry" ItemsSource="{Binding}" Grid.Row="0" Grid.Column="1" BorderThickness="0" ScrollViewer.CanContentScroll="False" AllowDrop="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid x:Name="gridEntryItem" Background="Transparent" MaxHeight="100">
+                                <Grid.ContextMenu>
+                                    <ContextMenu x:Name="contextList" HasDropShadow="False">
+                                        <MenuItem Header="{Binding Path=Title}" />
+                                        <MenuItem Header="menu 2." />
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="40"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="{Binding Path=Title}" Grid.Row="0" FontSize="18" Margin="3" Foreground="{DynamicResource sColor}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Path=Summary}" Grid.Row="1" FontSize="15" Margin="3" Foreground="Gray" TextWrapping="Wrap" />
+
+                                <TextBlock Text="{Binding Path=Category.Category}" Grid.Row="2" Margin="160,10,10,3" Foreground="#777777"  HorizontalAlignment="Right" TextAlignment="Right"/>
+                                <TextBlock Text="{Binding Path=Time}" Width="150" Tag="{Binding Path=URL}" Grid.Row="2" Margin="10,10,10,3" Foreground="#777777" HorizontalAlignment="Left"  Cursor="Hand"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <!--
+                    <ListBox.Resources>
+                        <SolidColorBrush x:Name="selectedColor" x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightGray" Opacity="0.6"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
+                    </ListBox.Resources>
+                    -->
+                </ListBox>
             </Grid>
         </Grid>
-
-        <Grid x:Name="gridMoveStatus" Visibility="Collapsed" Grid.Row="1" Margin="0,0,0,50" Grid.Column="0" Grid.ColumnSpan="3" IsHitTestVisible="False">
-            <Border x:Name="rectMovePosition" Height="2" Margin="0,200,0,0" Width="250" VerticalAlignment="Top" BorderBrush="White" BorderThickness="2" HorizontalAlignment="Left">
-                <Grid Background="Black" Opacity="0.3"/>
-            </Border>
-            
-            <Grid x:Name="gridNowMoving" Height="40" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Grid.Background>
-                    <SolidColorBrush Color="{DynamicResource cColor}" Opacity="0.7"/>
-                </Grid.Background>
-                <TextBlock x:Name="textNowMoving" Text="Hello World" VerticalAlignment="Center" FontSize="16" Margin="10,0,10,0" Foreground="White" TextTrimming="CharacterEllipsis"/>
-            </Grid>
-        </Grid>
-        
-        <Grid x:Name="gridDialog" Opacity="0" Grid.Row="1" Grid.RowSpan="2" IsHitTestVisible="False" Background="Transparent">
-            <Grid x:Name="gridDialogBackCover" Background="#88000000" MouseDown="gridDialogBackCover_MouseDown"/>
-            <StackPanel Background="White" Margin="20,0,20,0" VerticalAlignment="Center">
-                <Grid Height="40">
-                    <TextBlock x:Name="textFormType" Text="Question" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" FontSize="16" Foreground="{DynamicResource sColor}"/>
-                    <TextBlock x:Name="textTopMessage" Opacity="0" Text="Message" Foreground="White" Padding="10" Background="{DynamicResource sColor}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" HorizontalAlignment="Stretch"/>
-                </Grid>
-                <TextBox x:Name="textboxTitle" Margin="5,5,5,10" FontSize="13.33" Tag="Enter the title" />
-                <TextBlock x:Name="textDialogMessage" Text="Message Content" FontSize="13.33" Margin="10,5,10,10" MaxHeight="110" TextWrapping="Wrap" TextAlignment="Center"/>
-                <Grid Background="LightGray">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button x:Name="buttonPopupOK" Grid.Column="0" BorderThickness="0,1,1,0" Height="30" Style="{DynamicResource FlatMessageButton}" Background="White" Click="buttonPopupOK_Click">
-                        <TextBlock Text="Ok" FontSize="13.33" Foreground="{DynamicResource sColor}"/>
-                    </Button>
-                    <Button x:Name="buttonPopupCancel" Grid.Column="1" BorderThickness="0,1,0,0" Height="30" Style="{DynamicResource FlatMessageButton}" Background="White" Click="buttonPopupCancel_Click">
-                        <TextBlock Text="Cancel" FontSize="13.33" Foreground="{DynamicResource sColor}"/>
-                    </Button>
-                </Grid>
-            </StackPanel>
-        </Grid>
-
         <!-- Titlebar -->
-        
-        <Grid Background="{DynamicResource sColor}" Grid.Column="0" Grid.ColumnSpan="3">
+        <Grid Height="50" VerticalAlignment="Top">
             <Grid Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right">
                 <Button x:Name="buttonMinimize" Width="34" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,78,0" Style="{DynamicResource FlatButton}">
                     <Image Source="Resources/BtnMin.png"/>
@@ -191,30 +252,6 @@
                 </Button>
             </Grid>
             <Image Width="200" Source="/Resources/text/textearthreader.png" IsHitTestVisible="False" HorizontalAlignment="Left"/>
-        </Grid>
-        
-        <!-- Read Mode -->
-        <Grid Grid.Column="1" shell:WindowChrome.IsHitTestVisibleInChrome="True">
-            <StackPanel Orientation="Horizontal">
-                <Grid>
-                    <Button x:Name="buttonModeAll" Background="Transparent" Width="50" Visibility="Collapsed" Tag="all" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
-                        <Image Source="/Resources/text/textall_no.png"/>
-                    </Button>
-                    <Image x:Name="imageModeAll" Width="50" Source="/Resources/text/textall.png" IsHitTestVisible="False"/>
-                </Grid>
-                <Grid>
-                    <Button x:Name="buttonModeUnread" Background="Transparent" Width="100" Tag="unread" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
-                        <Image Source="/Resources/text/textunread_no.png"/>
-                    </Button>
-                    <Image x:Name="imageModeUnread" Width="100" Source="/Resources/text/textunread.png" IsHitTestVisible="False" Visibility="Collapsed"/>
-                </Grid>
-                <Grid>
-                    <Button x:Name="buttonModeStarred" Background="Transparent" Width="100" Tag="starred" Click="buttonModeSelect_Click" Style="{DynamicResource FlatButton}">
-                        <Image Source="/Resources/text/textstarred_no.png"/>
-                    </Button>
-                    <Image x:Name="imageModeStarred" Width="100" Source="/Resources/text/textstarred.png" IsHitTestVisible="False" Visibility="Collapsed"/>
-                </Grid>
-            </StackPanel>
         </Grid>
     </Grid>
 </Window>

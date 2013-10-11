@@ -24,7 +24,7 @@ namespace earthreader {
 				XmlReader reader = XmlReader.Create(new StringReader(strHTML));
 				SyndicationFeed feed = SyndicationFeed.Load(reader);
 
-				listCd.Add(new FeedCandidateList() { Title = feed.Title.Text, URL = strURL });
+				listCd.Add(new FeedCandidateList() { Title = feed.Title.Text, URL = strURL, Source = strHTML });
 
 			} catch (Exception e) {
 				MessageBox.Show(e.Message);
@@ -55,7 +55,7 @@ namespace earthreader {
 					StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream(), Encoding.UTF8);
 					rtHTML = streamReader.ReadToEnd();
 				} catch (Exception e) {
-					MessageBox.Show(e.Message);
+					//MessageBox.Show(e.Message);
 				}
 				return rtHTML;
 			});
@@ -63,6 +63,6 @@ namespace earthreader {
 	}
 
 	public struct FeedCandidateList {
-		public string Title, URL;
+		public string Title, URL, Source;
 	}
 }

@@ -73,13 +73,13 @@
     <SolidColorBrush x:Key="ListBoxBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="ListBoxItemBackgroundBrush" Color="{StaticResource Color_016}" />
     <SolidColorBrush x:Key="ListBoxItemBorderBrush" Color="{StaticResource Color_016}" />
-    <SolidColorBrush x:Key="ListBoxItemHoverBackgroundBrush" Color="{StaticResource Color_006}" />
+    <SolidColorBrush x:Key="ListBoxItemHoverBackgroundBrush" Color="Transparent" />
     <SolidColorBrush x:Key="ListBoxItemHoverBorderBrush" Color="Transparent" />
     <!-- <SolidColorBrush x:Key="ListBoxItemPressedBackgroundBrush" Color="{StaticResource Color_024}" />-->
     <SolidColorBrush x:Key="ListBoxItemPressedBackgroundBrush" Color="#AAE7E7E7" />
     <SolidColorBrush x:Key="ListBoxItemPressedBorderBrush" Color="Transparent" />
     <!-- <SolidColorBrush x:Key="ListBoxItemSelectedBackgroundBrush" Color="{StaticResource Color_026}" />-->
-    <SolidColorBrush x:Key="ListBoxItemSelectedBackgroundBrush" Color="#22f97e76" />
+    <SolidColorBrush x:Key="ListBoxItemSelectedBackgroundBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="ListBoxItemSelectedBorderBrush" Color="Transparent" />
 
     <!-- CheckBox Brushes -->

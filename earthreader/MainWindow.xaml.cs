@@ -73,11 +73,11 @@ namespace earthreader {
 				}
 
 				dictFeedItem.Add(nCount, new FeedItem() {
-					ID = nCount, Caption = textboxInput.Text, Count = 0, ParentID = nNowID,
+					ID = nCount, Caption = textboxInput.Text, Count = 0, ParentID = nNowCategoryViewID,
 					IsFeed = false, URL = "", Children = new List<int>(), 
 					Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconCategory.png")),
 				});
-				dictFeedItem[nNowID].Children.Add(nCount);
+				dictFeedItem[nNowCategoryViewID].Children.Add(nCount);
 
 				Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[nCount], "C" + nCount, 0);
 				buttonItem.Click += buttonFeedItem_Click;
@@ -97,13 +97,13 @@ namespace earthreader {
 
 			dictFeedItem.Add(0, new FeedItem() {
 				ID = 0, Caption = "all feeds", Count = 1, ParentID = 0,
-				IsFeed = true, URL = "", Children = new List<int>(),
+				IsFeed = false, URL = "", Children = new List<int>(),
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconAll.png")),
 			});
 
 			// Test code (30 categories)
 
-			for (int i = 0; i < 30; i++) {
+			for (int i = 0; i < 10; i++) {
 				dictFeedItem.Add(nCount, new FeedItem() {
 					ID = nCount, Caption = "Folder " + i.ToString("00"), Count = 0, ParentID = 0,
 					IsFeed = false, URL = "", Children = new List<int>(),
@@ -212,7 +212,7 @@ namespace earthreader {
 			}
 
 			foreach (FeedCandidateList fcd in listCd) {
-				Button buttonCandidate = CustomControl.GetFeedCandidateButton(fcd.Title, fcd.URL);
+				Button buttonCandidate = CustomControl.GetFeedCandidateButton(fcd);
 				buttonCandidate.Click += buttonFeedCandidate_Click;
 				stackListAutoDiscovery.Children.Add(buttonCandidate);
 			}
@@ -250,15 +250,18 @@ namespace earthreader {
 		// Autodiscovery result click event (add feed process)
 
 		private void buttonFeedCandidate_Click(object sender, RoutedEventArgs e) {
-			KeyValuePair<string, string> kvp = (KeyValuePair<string, string>)((Button)sender).Tag;
-			string strCaption = kvp.Key, strURL = kvp.Value;
+			FeedCandidateList fcl = (FeedCandidateList)((Button)sender).Tag;
+			string strCaption = fcl.Title, strURL = fcl.URL;
 
 			dictFeedItem.Add(nCount, new FeedItem() {
-				ID = nCount, Caption = strCaption, Count = 0, ParentID = nNowID,
+				ID = nCount, Caption = strCaption, Count = 0, ParentID = nNowCategoryViewID,
 				IsFeed = true, URL = strURL,
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconFeed.png")),
+				Contents = FeedParser.Parser(fcl.Source, fcl.Title),
 			});
-			dictFeedItem[nNowID].Children.Add(nCount);
+			dictFeedItem[nNowCategoryViewID].Children.Add(nCount);
+
+			//MessageBox.Show(dictFeedItem[nCount].Contents[0].Title);
 
 			Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[nCount], "F" + nCount, 0);
 			buttonItem.Click += buttonFeedItem_Click;
@@ -312,16 +315,16 @@ namespace earthreader {
 		// Refresh feedlist by ID number
 		#region Refresh feedlist by ID number
 
-		bool isFirstView = true; int nNowID = 0;
+		bool isFirstView = true; int nNowCategoryViewID = 0, nNowEntryViewID = 0;
 		StackPanel stackNow; AniScrollViewer scrollNow;
 		private void RefreshFeedList(int nID, bool isBack) {
 			if (isFeedlistAnimating) { return; }
 
 			scrollNow = isFirstView ? scrollFeedlist1 : scrollFeedlist2;
 
-			if (!isBack) { dictFeedItem[nNowID].ScrollOffset = Math.Min(scrollNow.ScrollableHeight, scrollNow.VerticalOffset); }
+			if (!isBack) { dictFeedItem[nNowCategoryViewID].ScrollOffset = Math.Min(scrollNow.ScrollableHeight, scrollNow.VerticalOffset); }
 
-			nNowID = nID;
+			nNowCategoryViewID = nID;
 			isFirstView = !isFirstView;
 
 			StackPanel stackPrev = isFirstView ? stackFeedlist2 : stackFeedlist1;
@@ -424,6 +427,8 @@ namespace earthreader {
 
 				ScrollBar s1 = scrollNext.Template.FindName("PART_VerticalScrollBar", scrollNext) as ScrollBar;
 				s1.BeginAnimation(ScrollBar.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+
+				RefreshEntryList(nNowCategoryViewID);
 			};
 			sb.Begin(this);
 		}
@@ -446,7 +451,7 @@ namespace earthreader {
 			nMouseDownID = Convert.ToInt32(strTag.Substring(1));
 			pointMouseDown = e.GetPosition(this);
 
-			nFromIndex = dictFeedItem[nNowID].Children.IndexOf(nMouseDownID);
+			nFromIndex = dictFeedItem[nNowCategoryViewID].Children.IndexOf(nMouseDownID);
 
 			//textTemp.Text = nMouseDownID.ToString();
 		}
@@ -458,7 +463,7 @@ namespace earthreader {
 			if (!isMouseDown || nMouseDownID < 0 || isDialogMode) { return; }
 			pointMouseMove = e.GetPosition(this);
 
-			if (Math.Max(Math.Abs(pointMouseDown.X - pointMouseMove.X), Math.Abs(pointMouseDown.Y - pointMouseMove.Y)) >= 5 && !isMoving) {
+			if (Math.Max(Math.Abs(pointMouseDown.X - pointMouseMove.X), Math.Abs(pointMouseDown.Y - pointMouseMove.Y)) >= 10 && !isMoving) {
 				nMouseMovingID = nMouseDownID;
 				isMoving = true;
 
@@ -511,16 +516,16 @@ namespace earthreader {
 
 				double pointAbsolute = scrollNow.VerticalOffset + pointMouseMove.Y - 50;		// 50 is height of titlebar
 				double dFixedHeight = 100;
-				if (nNowID == 0) { dFixedHeight = 60; }
+				if (nNowCategoryViewID == 0) { dFixedHeight = 60; }
 
 				double pointRelate = pointAbsolute - dFixedHeight;
 
 				int nHoverIndex = (int)pointRelate / 40;
 				nHoverIndex = Math.Max(0, nHoverIndex);
-				nHoverIndex = Math.Min(dictFeedItem[nNowID].Children.Count - 1, nHoverIndex);
+				nHoverIndex = Math.Min(dictFeedItem[nNowCategoryViewID].Children.Count - 1, nHoverIndex);
 
 				int nDivideHeight = 10;
-				if (dictFeedItem[dictFeedItem[nNowID].Children[nHoverIndex]].IsFeed) { nDivideHeight = 20; }
+				if (dictFeedItem[dictFeedItem[nNowCategoryViewID].Children[nHoverIndex]].IsFeed) { nDivideHeight = 20; }
 
 				double dRectPosition = 0;
 
@@ -555,7 +560,7 @@ namespace earthreader {
 					rectMovePosition.Height = 2;
 
 				} else {
-					if (dictFeedItem[dictFeedItem[nNowID].Children[nHoverIndex]].IsFeed) { return; }
+					if (dictFeedItem[dictFeedItem[nNowCategoryViewID].Children[nHoverIndex]].IsFeed) { return; }
 					textTemp.Text = nHoverIndex + "의 안에";
 
 					nToIndex = nHoverIndex * 3 + 2;
@@ -581,19 +586,19 @@ namespace earthreader {
 			if (nToIndex < 0) { return; }
 
 			//textTemp.Text = string.Format("Result : {0} -> {1}", nFromIndex, nToIndex);
-			int nSelectedTag = dictFeedItem[nNowID].Children[nFromIndex];
-			int nTowardTag = dictFeedItem[nNowID].Children[(nToIndex - 1) / 3];
+			int nSelectedTag = dictFeedItem[nNowCategoryViewID].Children[nFromIndex];
+			int nTowardTag = dictFeedItem[nNowCategoryViewID].Children[(nToIndex - 1) / 3];
 
 			int nOffset = 1;
-			if (nNowID != 0) { nOffset = 2; }
+			if (nNowCategoryViewID != 0) { nOffset = 2; }
 
 			if (nToIndex == 0) {
 				// send to parent
 
-				dictFeedItem[dictFeedItem[nNowID].ParentID].Children.Add(nSelectedTag);
-				dictFeedItem[nSelectedTag].ParentID = dictFeedItem[nNowID].ParentID;
+				dictFeedItem[dictFeedItem[nNowCategoryViewID].ParentID].Children.Add(nSelectedTag);
+				dictFeedItem[nSelectedTag].ParentID = dictFeedItem[nNowCategoryViewID].ParentID;
 
-				dictFeedItem[nNowID].Children.Remove(nSelectedTag);
+				dictFeedItem[nNowCategoryViewID].Children.Remove(nSelectedTag);
 				stackNow.Children.RemoveAt(nFromIndex + nOffset);
 
 			} else if (nToIndex % 3 == 2) {
@@ -605,7 +610,7 @@ namespace earthreader {
 				dictFeedItem[nTowardTag].Children.Add(nSelectedTag);
 				dictFeedItem[nSelectedTag].ParentID = nTowardTag;
 
-				dictFeedItem[nNowID].Children.Remove(nSelectedTag);
+				dictFeedItem[nNowCategoryViewID].Children.Remove(nSelectedTag);
 				stackNow.Children.RemoveAt(nFromIndex + nOffset);
 
 			} else {
@@ -617,8 +622,8 @@ namespace earthreader {
 				int nBeforeOffset = 0;
 				if (nFromIndex < nAbsToIndex) { nBeforeOffset = 1; }
 
-				dictFeedItem[nNowID].Children.RemoveAt(nFromIndex);
-				dictFeedItem[nNowID].Children.Insert(nAbsToIndex - nBeforeOffset, nSelectedTag);
+				dictFeedItem[nNowCategoryViewID].Children.RemoveAt(nFromIndex);
+				dictFeedItem[nNowCategoryViewID].Children.Insert(nAbsToIndex - nBeforeOffset, nSelectedTag);
 
 				Button buttonMove = (Button)stackNow.Children[nFromIndex + nOffset];
 				stackNow.Children.RemoveAt(nFromIndex + nOffset);
@@ -662,7 +667,7 @@ namespace earthreader {
 				case 'R':
 					// Rename
 					textFormType.Text = "Rename item";
-					textboxTitle.Text = "";
+					textboxTitle.Text = dictFeedItem[nDialogID].Caption;
 					textboxTitle.Tag = dictFeedItem[nDialogID].Caption;
 
 					textboxTitle.Visibility = Visibility.Visible;
@@ -707,12 +712,12 @@ namespace earthreader {
 					// Delete
 
 					int nOffset = 1;
-					if (nNowID != 0) { nOffset = 2; }
+					if (nNowCategoryViewID != 0) { nOffset = 2; }
 
-					int nIndex = dictFeedItem[nNowID].Children.IndexOf(nDialogID);
+					int nIndex = dictFeedItem[nNowCategoryViewID].Children.IndexOf(nDialogID);
 					stackNow.Children.RemoveAt(nIndex + nOffset);
 
-					dictFeedItem[nNowID].Children.Remove(nDialogID);
+					dictFeedItem[nNowCategoryViewID].Children.Remove(nDialogID);
 
 					Queue<int> q = new Queue<int>();
 					q.Enqueue(nDialogID);
@@ -786,11 +791,17 @@ namespace earthreader {
 					break;
 				default:
 					// feed
-
+					RefreshEntryList(nID);
 					break;
 			}
 
 			//MessageBox.Show(nID.ToString() + "\n" + widthFeedlist.Width);
+		}
+
+		private void RefreshEntryList(int nID) {
+			if (!dictFeedItem[nID].IsFeed) { return; }
+
+			listEntry.DataContext = dictFeedItem[nID].Contents;
 		}
 	}
 }

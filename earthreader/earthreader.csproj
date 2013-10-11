@@ -59,6 +59,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AutoDiscovery.cs" />
+    <Compile Include="CustomControl.cs" />
     <Compile Include="DataStruct.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -69,6 +70,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FeedParser.cs" />
     <Compile Include="GifImage.cs" />
     <Compile Include="HtmlRemoval.cs" />
     <Compile Include="MainWindow.xaml.cs">
