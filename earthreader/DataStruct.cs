@@ -13,7 +13,7 @@ namespace earthreader {
 		public List<int> Children;
 		public BitmapImage Favicon;
 
-		public List<EntryItem> Contents;
+		public ObservableCollection<EntryItem> Contents;
 
 		private string _caption;
 		public string Caption {

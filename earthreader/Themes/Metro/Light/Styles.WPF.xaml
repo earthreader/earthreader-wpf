@@ -219,6 +219,7 @@
                         
                         -->
                         <Rectangle x:Name="Bg" Grid.RowSpan="3" Fill="{StaticResource ScrollbarDisabledBackgroundBrush}" Margin="0,0,0,0"/>
+                        
                         <RepeatButton x:Name="repeatButton" Command="{x:Static ScrollBar.LineUpCommand}" IsEnabled="True" Style="{StaticResource ScrollBarButtonStyle}" HorizontalAlignment="Center" />
                         <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="True" Grid.Row="1">
                             <Track.DecreaseRepeatButton>

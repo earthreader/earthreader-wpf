@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceModel.Syndication;
@@ -53,16 +54,7 @@ namespace earthreader {
 
 			// Autodiscovery timer trigger (default:3sec)
 
-			textboxInput.TextChanged += (o, e) => {
-				if (textboxInput.Text == "") { return; }
-				strGlobalLoadingURL = textboxInput.Text;
-
-				dtm.Stop();
-				dtm.Tag = (string)textboxInput.Text;
-
-				dtm.Tick += dtm_Tick;
-				dtm.Start();
-			};
+			textboxInput.TextChanged += textboxInput_TextChanged;
 
 			// Category adding process.
 
@@ -91,6 +83,8 @@ namespace earthreader {
 
 				nCount++;
 				buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+				scrollNow.ScrollToEnd();
 			};
 
 			// Add root
@@ -114,6 +108,22 @@ namespace earthreader {
 			}
 
 			RefreshFeedList(0, false);
+
+
+			listEntry.SelectionChanged += (o, e) => {
+				textTemp.Text = listEntry.SelectedIndex.ToString();
+			};
+		}
+
+		private void textboxInput_TextChanged(object sender, TextChangedEventArgs e) {
+			if (textboxInput.Text == "") { return; }
+			strGlobalLoadingURL = textboxInput.Text;
+
+			dtm.Stop();
+			dtm.Tag = (string)textboxInput.Text;
+
+			dtm.Tick += dtm_Tick;
+			dtm.Start();
 		}
 
 		// Feed & category add window animation
@@ -188,12 +198,14 @@ namespace earthreader {
 		// Autodiscovery sample code
 
 		string strGlobalLoadingURL = "";
-		DispatcherTimer dtm = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(1500), IsEnabled = false };
+		DispatcherTimer dtm = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2500), IsEnabled = false };
+
+		int count = 0;
 		private async void dtm_Tick(object sender, EventArgs e) {
-			((DispatcherTimer)sender).Stop();
+			dtm.Stop();
 			if (!isAddWindowMode) { return; }
 
-			string strURL = (string)((DispatcherTimer)sender).Tag;
+			string strURL = (string)dtm.Tag;
 
 			if (strURL != strGlobalLoadingURL) { return; }
 
@@ -210,6 +222,8 @@ namespace earthreader {
 				ShowMessage(string.Format("{0} feed detected", listCd.Count), 3);
 				return;
 			}
+			count++;
+			textTemp.Text = count.ToString();
 
 			foreach (FeedCandidateList fcd in listCd) {
 				Button buttonCandidate = CustomControl.GetFeedCandidateButton(fcd);
@@ -257,9 +271,10 @@ namespace earthreader {
 				ID = nCount, Caption = strCaption, Count = 0, ParentID = nNowCategoryViewID,
 				IsFeed = true, URL = strURL,
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconFeed.png")),
-				Contents = FeedParser.Parser(fcl.Source, fcl.Title),
 			});
 			dictFeedItem[nNowCategoryViewID].Children.Add(nCount);
+
+			dictFeedItem[nCount].Contents = FeedParser.Parser(fcl.Source, fcl.Title, dictFeedItem[nCount]);
 
 			//MessageBox.Show(dictFeedItem[nCount].Contents[0].Title);
 
@@ -275,6 +290,8 @@ namespace earthreader {
 
 			nCount++;
 			buttonAdd.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+			scrollNow.ScrollToEnd();
 		}
 
 
@@ -802,6 +819,14 @@ namespace earthreader {
 			if (!dictFeedItem[nID].IsFeed) { return; }
 
 			listEntry.DataContext = dictFeedItem[nID].Contents;
+		}
+
+		private void TextBlockTime_MouseDown(object sender, MouseButtonEventArgs e) {
+			e.Handled = true;
+			TextBlock txt = sender as TextBlock;
+			try {
+				Process.Start((string)txt.Tag);
+			} catch { }
 		}
 	}
 }

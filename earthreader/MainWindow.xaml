@@ -25,8 +25,8 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid x:Name="gridMain">
+    <Grid x:Name="gridMain">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="*"/>
@@ -34,13 +34,10 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="widthFeedlist" Width="250" MinWidth="200" MaxWidth="380"/>
-                <ColumnDefinition Width="700"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-
-            <GridSplitter x:Name="gridsplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
-            <GridSplitter Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
             <!-- 
+            <GridSplitter Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
         -->
 
             <Grid Background="#393836" Grid.Row="1">
@@ -54,7 +51,6 @@
                         <StackPanel x:Name="stackFeedlist2" Visibility="Visible" Background="#393836">
 
                         </StackPanel>
-
                     </local:AniScrollViewer>
 
                     <local:AniScrollViewer x:Name="scrollFeedlist1" Style="{DynamicResource ScrollViewerStyle2}">
@@ -204,7 +200,7 @@
                 <ListBox x:Name="listEntry" ItemsSource="{Binding}" Grid.Row="0" Grid.Column="1" BorderThickness="0" ScrollViewer.CanContentScroll="False" AllowDrop="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid x:Name="gridEntryItem" Background="Transparent" MaxHeight="100">
+                            <Grid Background="Transparent" MaxHeight="112">
                                 <Grid.ContextMenu>
                                     <ContextMenu x:Name="contextList" HasDropShadow="False">
                                         <MenuItem Header="{Binding Path=Title}" />
@@ -218,11 +214,11 @@
                                     <RowDefinition Height="40"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="{Binding Path=Title}" Grid.Row="0" FontSize="18" Margin="3" Foreground="{DynamicResource sColor}" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Path=Summary}" Grid.Row="1" FontSize="15" Margin="3" Foreground="Gray" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding Path=Title}" Grid.Row="0" FontSize="15" Margin="3" Foreground="{DynamicResource sColor}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Path=Summary}" Grid.Row="1" FontSize="13.33" Margin="3" Foreground="#999999" TextWrapping="Wrap" />
 
-                                <TextBlock Text="{Binding Path=Category.Category}" Grid.Row="2" Margin="160,10,10,3" Foreground="#777777"  HorizontalAlignment="Right" TextAlignment="Right"/>
-                                <TextBlock Text="{Binding Path=Time}" Width="150" Tag="{Binding Path=URL}" Grid.Row="2" Margin="10,10,10,3" Foreground="#777777" HorizontalAlignment="Left"  Cursor="Hand"/>
+                                <TextBlock Text="{Binding Path=Category.Category}" Grid.Row="2" Margin="160,10,10,3" Foreground="#999999"  HorizontalAlignment="Right" TextAlignment="Right"/>
+                                <TextBlock Text="{Binding Path=Time}" Width="150" Tag="{Binding Path=URL}" Grid.Row="2" Margin="10,10,10,3" Foreground="#999999" HorizontalAlignment="Left"  Cursor="Hand" MouseDown="TextBlockTime_MouseDown"/>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -234,6 +230,7 @@
                     -->
                 </ListBox>
             </Grid>
+            <GridSplitter x:Name="gridsplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
         </Grid>
         <!-- Titlebar -->
         <Grid Height="50" VerticalAlignment="Top">
