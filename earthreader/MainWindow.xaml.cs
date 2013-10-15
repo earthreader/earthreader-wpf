@@ -271,10 +271,9 @@ namespace earthreader {
 				ID = nCount, Caption = strCaption, Count = 0, ParentID = nNowCategoryViewID,
 				IsFeed = true, URL = strURL,
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconFeed.png")),
+				Contents = FeedParser.Parser(fcl.Source, fcl.Title),
 			});
 			dictFeedItem[nNowCategoryViewID].Children.Add(nCount);
-
-			dictFeedItem[nCount].Contents = FeedParser.Parser(fcl.Source, fcl.Title, dictFeedItem[nCount]);
 
 			//MessageBox.Show(dictFeedItem[nCount].Contents[0].Title);
 
@@ -815,10 +814,25 @@ namespace earthreader {
 			//MessageBox.Show(nID.ToString() + "\n" + widthFeedlist.Width);
 		}
 
+
+		Dictionary<int, EntryItem> dictEntry = new Dictionary<int, EntryItem>();
 		private void RefreshEntryList(int nID) {
 			if (!dictFeedItem[nID].IsFeed) { return; }
 
+			nShowingEntryIndex = -1;
+			dictEntry.Clear();
+			foreach (EntryItem eItem in dictFeedItem[nID].Contents) {
+				eItem.SummaryVisibility = Visibility.Visible;
+				eItem.ContentVisibility = Visibility.Collapsed;
+				eItem.ContentView = "";
+
+				dictEntry.Add(eItem.Tag, eItem);
+			}
 			listEntry.DataContext = dictFeedItem[nID].Contents;
+
+			if (dictFeedItem[nID].Contents.Count > 0) {
+				listEntry.ScrollIntoView(listEntry.Items[0]);
+			}
 		}
 
 		private void TextBlockTime_MouseDown(object sender, MouseButtonEventArgs e) {
@@ -827,6 +841,40 @@ namespace earthreader {
 			try {
 				Process.Start((string)txt.Tag);
 			} catch { }
+		}
+
+		int nShowingEntryIndex = -1;
+		private void ButtonEntryItem_Click(object sender, RoutedEventArgs e) {
+			if (nShowingEntryIndex >= 0) {
+				dictEntry[nShowingEntryIndex].ContentView = "";
+				dictEntry[nShowingEntryIndex].ContentVisibility = Visibility.Collapsed;
+				dictEntry[nShowingEntryIndex].SummaryVisibility = Visibility.Visible;
+			}
+			nShowingEntryIndex = (int)((Button)sender).Tag;
+			dictEntry[nShowingEntryIndex].ContentVisibility = Visibility.Visible;
+			dictEntry[nShowingEntryIndex].SummaryVisibility = Visibility.Collapsed;
+
+			dictEntry[nShowingEntryIndex].ContentView = dictEntry[nShowingEntryIndex].Content;
+
+			StackPanel stack = (StackPanel)((Button)sender).Parent;
+			listEntry.ScrollIntoView(stack);
+		}
+
+		private void ButtonEntryItemClose_Click(object sender, RoutedEventArgs e) {
+			nShowingEntryIndex = -1;
+			int nIdx = (int)((Button)sender).Tag;
+
+			dictEntry[nIdx].ContentVisibility = Visibility.Collapsed;
+			dictEntry[nIdx].SummaryVisibility = Visibility.Visible;
+		}
+
+		private void Button_PreviewMouseDown_1(object sender, MouseButtonEventArgs e) {
+			nShowingEntryIndex = -1;
+			int nIdx = (int)((Button)sender).Tag;
+
+			dictEntry[nIdx].ContentVisibility = Visibility.Collapsed;
+			dictEntry[nIdx].SummaryVisibility = Visibility.Visible;
+
 		}
 	}
 }

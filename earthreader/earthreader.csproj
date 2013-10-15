@@ -71,6 +71,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FeedParser.cs" />
+    <Compile Include="FileClass.cs" />
     <Compile Include="GifImage.cs" />
     <Compile Include="HtmlRemoval.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -161,6 +162,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="memo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\btnClose_Entry.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

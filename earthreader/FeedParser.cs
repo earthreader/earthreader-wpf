@@ -12,7 +12,8 @@ using System.Xml;
 
 namespace earthreader {
 	public class FeedParser {
-		public static ObservableCollection<EntryItem> Parser(string strXML, string strCaption, FeedItem feedItem) {
+		private static int nCount = 0;
+		public static ObservableCollection<EntryItem> Parser(string strXML, string strCaption) {
 			XmlReader reader = XmlReader.Create(new StringReader(strXML));
 			SyndicationFeed feed = SyndicationFeed.Load(reader);
 
@@ -23,10 +24,14 @@ namespace earthreader {
 
 				ctm.Title = item.Title.Text;
 				ctm.URL = item.Links[0].Uri.OriginalString;
-				ctm.Content = item.Summary.Text;
+				ctm.Content = HtmlRemoval.StripTagsCharArray(item.Summary.Text);
+				ctm.Tag = nCount; nCount++;
 
-				ctm.Summary = HtmlRemoval.StripTagsCharArray(ctm.Content).Replace(Environment.NewLine, " ").Trim();
-				ctm.Summary = HtmlRemoval.StripTagsCharArray(ctm.Content).Replace((char)10, ' ').Trim();
+				ctm.Summary = ctm.Content.Replace(Environment.NewLine, " ").Trim();
+				ctm.Summary = ctm.Summary.Replace((char)10, ' ').Trim();
+				if (ctm.Summary.Length > 200) {
+					ctm.Summary = ctm.Summary.Substring(200);
+				}
 
 
 				try { ctm.Time = item.PublishDate.DateTime.ToString(); } catch { ctm.Time = ""; }

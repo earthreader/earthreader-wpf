@@ -200,26 +200,49 @@
                 <ListBox x:Name="listEntry" ItemsSource="{Binding}" Grid.Row="0" Grid.Column="1" BorderThickness="0" ScrollViewer.CanContentScroll="False" AllowDrop="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid Background="Transparent" MaxHeight="112">
-                                <Grid.ContextMenu>
-                                    <ContextMenu x:Name="contextList" HasDropShadow="False">
-                                        <MenuItem Header="{Binding Path=Title}" />
-                                        <MenuItem Header="menu 2." />
-                                    </ContextMenu>
-                                </Grid.ContextMenu>
+                            <StackPanel>
+                                <Button Background="Transparent" Visibility="{Binding Path=SummaryVisibility}" Tag="{Binding Path=Tag}" Style="{DynamicResource FlatMessageButton}" HorizontalContentAlignment="Stretch" Click="ButtonEntryItem_Click">
+                                    <Grid Background="Transparent" MaxHeight="112">
+                                        <Grid.ContextMenu>
+                                            <ContextMenu x:Name="contextList" HasDropShadow="False">
+                                                <MenuItem Header="{Binding Path=Title}" />
+                                                <MenuItem Header="menu 2." />
+                                            </ContextMenu>
+                                        </Grid.ContextMenu>
 
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="30"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="40"/>
-                                </Grid.RowDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="30"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="40"/>
+                                        </Grid.RowDefinitions>
 
-                                <TextBlock Text="{Binding Path=Title}" Grid.Row="0" FontSize="15" Margin="3" Foreground="{DynamicResource sColor}" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Path=Summary}" Grid.Row="1" FontSize="13.33" Margin="3" Foreground="#999999" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding Path=Title}" Grid.Row="0" FontSize="15" Margin="3" Foreground="{DynamicResource sColor}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Path=Summary}" Grid.Row="1" FontSize="13.33" Margin="3" Foreground="#999999" TextWrapping="Wrap" />
 
-                                <TextBlock Text="{Binding Path=Category.Category}" Grid.Row="2" Margin="160,10,10,3" Foreground="#999999"  HorizontalAlignment="Right" TextAlignment="Right"/>
-                                <TextBlock Text="{Binding Path=Time}" Width="150" Tag="{Binding Path=URL}" Grid.Row="2" Margin="10,10,10,3" Foreground="#999999" HorizontalAlignment="Left"  Cursor="Hand" MouseDown="TextBlockTime_MouseDown"/>
-                            </Grid>
+                                        <TextBlock Text="{Binding Path=Category.Category}" Grid.Row="2" Margin="160,10,10,3" Foreground="#999999"  HorizontalAlignment="Right" TextAlignment="Right"/>
+                                        <TextBlock Text="{Binding Path=Time}" Width="150" Tag="{Binding Path=URL}" Grid.Row="2" Margin="10,10,10,3" Foreground="#999999" HorizontalAlignment="Left"  Cursor="Hand" MouseDown="TextBlockTime_MouseDown"/>
+                                    </Grid>
+                                </Button>
+                                <Border BorderBrush="LightGray" BorderThickness="2" Visibility="{Binding Path=ContentVisibility}" Margin="10">
+                                    <Grid Background="Transparent" Margin="15">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="50"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="40"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="{Binding Path=Title}" Grid.Row="0" FontSize="25" Margin="3,3,25,3" Foreground="{DynamicResource sColor}" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                        <Button Background="Transparent"  Tag="{Binding Path=Tag}" Style="{DynamicResource FlatMessageButton}" HorizontalContentAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Click="ButtonEntryItemClose_Click" >
+                                            <Image Source="/Resources/btnClose_Entry.png" Width="14" Height="14"/>
+                                        </Button>
+                                            
+                                        <TextBlock Text="{Binding Path=ContentView}" Grid.Row="1" FontSize="13.33" Margin="3" Foreground="#999999" TextWrapping="Wrap" />
+
+                                        <TextBlock Text="{Binding Path=Category.Category}" Grid.Row="2" Margin="160,10,10,3" Foreground="#999999"  HorizontalAlignment="Right" TextAlignment="Right"/>
+                                        <TextBlock Text="{Binding Path=Time}" Width="150" Tag="{Binding Path=URL}" Grid.Row="2" Margin="10,10,10,3" Foreground="#999999" HorizontalAlignment="Left"  Cursor="Hand" MouseDown="TextBlockTime_MouseDown"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                     <!--
@@ -230,7 +253,7 @@
                     -->
                 </ListBox>
             </Grid>
-            <GridSplitter x:Name="gridsplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="False" Margin="-1,0,0,0"/>
+            <GridSplitter x:Name="gridsplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" ShowsPreview="True" Margin="-1,0,0,0"/>
         </Grid>
         <!-- Titlebar -->
         <Grid Height="50" VerticalAlignment="Top">

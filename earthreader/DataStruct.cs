@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace earthreader {
@@ -84,12 +85,30 @@ namespace earthreader {
 			}
 		}
 
+		private int sTag;
+		public int Tag {
+			get { return sTag; }
+			set {
+				sTag = value;
+				OnPropertyChanged("Tag");
+			}
+		}
+
 		private string sTime;
 		public string Time {
 			get { return sTime; }
 			set {
 				sTime = value;
 				OnPropertyChanged("Time");
+			}
+		}
+
+		private string sContentView;
+		public string ContentView {
+			get { return sContentView; }
+			set {
+				sContentView = value;
+				OnPropertyChanged("ContentView");
 			}
 		}
 
@@ -131,6 +150,24 @@ namespace earthreader {
 			set {
 				sCategory = value;
 				OnPropertyChanged("Category");
+			}
+		}
+
+		private Visibility sContentVisibility = Visibility.Collapsed;
+		public Visibility ContentVisibility {
+			get { return sContentVisibility; }
+			set {
+				sContentVisibility = value;
+				OnPropertyChanged("ContentVisibility");
+			}
+		}
+
+		private Visibility sSummaryVisibility = Visibility.Visible;
+		public Visibility SummaryVisibility {
+			get { return sSummaryVisibility; }
+			set {
+				sSummaryVisibility = value;
+				OnPropertyChanged("SummaryVisibility");
 			}
 		}
 
