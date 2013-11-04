@@ -14,7 +14,7 @@ namespace earthreader {
 
 		public static async Task<List<FeedCandidateList>> GetCandidateFeeds(string strURL) {
 			List<FeedCandidateList> listCd = new List<FeedCandidateList>();
-
+			
 			Task<string> httpTask = GetHTML(strURL);
 			string strHTML = await httpTask;
 
@@ -27,9 +27,10 @@ namespace earthreader {
 				listCd.Add(new FeedCandidateList() { Title = feed.Title.Text, URL = strURL, Source = strHTML });
 
 			} catch (Exception e) {
-				MessageBox.Show(e.Message);
+				//MessageBox.Show(e.Message);
 				return listCd;
 			}
+
 			return listCd;
 		}
 

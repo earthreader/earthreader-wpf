@@ -52,9 +52,15 @@ namespace earthreader {
 				}
 			};
 
-			// Autodiscovery timer trigger (default:3sec)
+			// Autodiscovery trigger (default:3sec)
 
-			textboxInput.TextChanged += textboxInput_TextChanged;
+			textboxFeedInput.KeyDown += (o, e) => {
+				if (e.Key == Key.Enter) {
+					buttonFeedAccept.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+				}
+			};
+
+			buttonFeedAccept.Click += buttonFeedAccept_Click;
 
 			// Category adding process.
 
@@ -115,15 +121,30 @@ namespace earthreader {
 			};
 		}
 
-		private void textboxInput_TextChanged(object sender, TextChangedEventArgs e) {
-			if (textboxInput.Text == "") { return; }
-			strGlobalLoadingURL = textboxInput.Text;
+		private async void buttonFeedAccept_Click(object sender, RoutedEventArgs e) {
+			if (!isAddWindowMode) { return; }
 
-			dtm.Stop();
-			dtm.Tag = (string)textboxInput.Text;
+			string strURL = textboxFeedInput.Text;
 
-			dtm.Tick += dtm_Tick;
-			dtm.Start();
+			stackListAutoDiscovery.Children.Clear();
+			ShowMessage("Searching...", 20);
+
+			Task<List<FeedCandidateList>> httpTask = AutoDiscovery.GetCandidateFeeds(strURL);
+			List<FeedCandidateList> listCd = await httpTask;
+
+			stackListAutoDiscovery.Children.Clear();
+
+			if (listCd.Count == 0) {
+				ShowMessage(string.Format("{0} feed detected", listCd.Count), 3);
+				return;
+			}
+
+			foreach (FeedCandidateList fcd in listCd) {
+				Button buttonCandidate = CustomControl.GetFeedCandidateButton(fcd);
+				buttonCandidate.Click += buttonFeedCandidate_Click;
+				stackListAutoDiscovery.Children.Add(buttonCandidate);
+			}
+			ShowMessage("", 0);
 		}
 
 		// Feed & category add window animation
@@ -136,9 +157,10 @@ namespace earthreader {
 			} else {
 				gridAddWindow.IsHitTestVisible = true;
 				gridAddBackCover.IsHitTestVisible = true;
-				gridAlert.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(0)));
+				gridAlert.BeginAnimation(Grid.MarginProperty, new ThicknessAnimation(new Thickness(0, 0, 0, 130), TimeSpan.FromMilliseconds(0)));
 
 				textboxInput.Text = "";
+				textboxFeedInput.Text = "";
 				stackListAutoDiscovery.Children.Clear();
 				textboxInput.Focus();
 			}
@@ -147,7 +169,7 @@ namespace earthreader {
 			int nParameter = isAddWindowMode ? 1 : 0;
 			Storyboard sb = new Storyboard();
 			DoubleAnimation da = new DoubleAnimation(nParameter, TimeSpan.FromMilliseconds(250));
-			ThicknessAnimation ta = new ThicknessAnimation(new Thickness(0, 0, 0, -90 * (1 - nParameter)), TimeSpan.FromMilliseconds(250)) {
+			ThicknessAnimation ta = new ThicknessAnimation(new Thickness(0, 0, 0, -130 * (1 - nParameter)), TimeSpan.FromMilliseconds(250)) {
 				BeginTime = TimeSpan.FromMilliseconds(100 * nParameter),
 				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut }
 			};
@@ -195,43 +217,6 @@ namespace earthreader {
 			buttonModeStarred.Visibility = nMode != 2 ? Visibility.Visible : Visibility.Collapsed;
 		}
 
-		// Autodiscovery sample code
-
-		string strGlobalLoadingURL = "";
-		DispatcherTimer dtm = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2500), IsEnabled = false };
-
-		int count = 0;
-		private async void dtm_Tick(object sender, EventArgs e) {
-			dtm.Stop();
-			if (!isAddWindowMode) { return; }
-
-			string strURL = (string)dtm.Tag;
-
-			if (strURL != strGlobalLoadingURL) { return; }
-
-			stackListAutoDiscovery.Children.Clear();
-			ShowMessage("Searching...", 20);
-			
-			Task<List<FeedCandidateList>> httpTask = AutoDiscovery.GetCandidateFeeds(strURL);
-			List<FeedCandidateList> listCd = await httpTask;
-
-			stackListAutoDiscovery.Children.Clear();
-
-			if (strURL != strGlobalLoadingURL) { return; }
-			if (listCd.Count == 0) {
-				ShowMessage(string.Format("{0} feed detected", listCd.Count), 3);
-				return;
-			}
-			count++;
-			textTemp.Text = count.ToString();
-
-			foreach (FeedCandidateList fcd in listCd) {
-				Button buttonCandidate = CustomControl.GetFeedCandidateButton(fcd);
-				buttonCandidate.Click += buttonFeedCandidate_Click;
-				stackListAutoDiscovery.Children.Add(buttonCandidate);
-			}
-			ShowMessage("", 0);
-		}
 
 		// Autodiscovery alert message function
 
@@ -239,7 +224,7 @@ namespace earthreader {
 			Storyboard sb = new Storyboard();
 
 			if (dTimeout > 0) {
-				ThicknessAnimation ta1 = new ThicknessAnimation(new Thickness(0, 0, 0, 50), TimeSpan.FromMilliseconds(200)) {
+				ThicknessAnimation ta1 = new ThicknessAnimation(new Thickness(0, -30, 0, 0), TimeSpan.FromMilliseconds(200)) {
 					BeginTime = TimeSpan.FromMilliseconds(100),
 					EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
 				};
@@ -249,7 +234,7 @@ namespace earthreader {
 				sb.Children.Add(ta1);
 			}
 
-			ThicknessAnimation ta2 = new ThicknessAnimation(new Thickness(0), TimeSpan.FromMilliseconds(200)) {
+			ThicknessAnimation ta2 = new ThicknessAnimation(new Thickness(0, 0, 0, 0), TimeSpan.FromMilliseconds(200)) {
 				BeginTime = TimeSpan.FromSeconds(dTimeout),
 				EasingFunction = new ExponentialEase() { Exponent = 5, EasingMode = EasingMode.EaseOut },
 			};
@@ -274,8 +259,6 @@ namespace earthreader {
 				Contents = FeedParser.Parser(fcl.Source, fcl.Title),
 			});
 			dictFeedItem[nNowCategoryViewID].Children.Add(nCount);
-
-			//MessageBox.Show(dictFeedItem[nCount].Contents[0].Title);
 
 			Button buttonItem = CustomControl.GetFeedItemButton(dictFeedItem[nCount], "F" + nCount, 0);
 			buttonItem.Click += buttonFeedItem_Click;
@@ -407,7 +390,6 @@ namespace earthreader {
 			stackNext.Visibility = Visibility.Visible;
 			scrollPrev.IsHitTestVisible = false;
 			scrollNext.IsHitTestVisible = true;
-
 			
 			if (!isBack) {
 				tn = new Thickness(widthFeedlist.Width.Value, 0, 0, 0);

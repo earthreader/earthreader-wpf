@@ -18,7 +18,7 @@ namespace earthreader {
 			SyndicationFeed feed = SyndicationFeed.Load(reader);
 
 			ObservableCollection<EntryItem> listEntry = new ObservableCollection<EntryItem>();
-
+			
 			foreach (SyndicationItem item in feed.Items) {
 				EntryItem ctm = new EntryItem();
 
