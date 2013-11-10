@@ -119,6 +119,26 @@ namespace earthreader {
 			listEntry.SelectionChanged += (o, e) => {
 				textTemp.Text = listEntry.SelectedIndex.ToString();
 			};
+
+			this.KeyDown += (o, e) => {
+				if (isAddWindowMode) { return; }
+				bool isKeyHandled = true;
+
+				switch (e.Key) {
+					case Key.Up:
+						break;
+					case Key.Down:
+						break;
+					case Key.J:
+						break;
+					case Key.K:
+						break;
+					default:
+						isKeyHandled = false;
+						break;
+				}
+				e.Handled = isKeyHandled;
+			};
 		}
 
 		private async void buttonFeedAccept_Click(object sender, RoutedEventArgs e) {
@@ -217,6 +237,17 @@ namespace earthreader {
 			buttonModeStarred.Visibility = nMode != 2 ? Visibility.Visible : Visibility.Collapsed;
 		}
 
+		private void buttonEntryOption_Click(object sender, RoutedEventArgs e) {
+			Point targetPoint = buttonEntryOption.PointToScreen(new Point(0, 0));
+
+			contextMenu.PlacementRectangle = new Rect(targetPoint, new Size(buttonEntryOption.Width, buttonEntryOption.Height));
+			contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.RelativePoint;
+
+			contextMenu.HorizontalOffset = 10;
+			contextMenu.VerticalOffset = 50;
+
+			contextMenu.IsOpen = true;
+		}
 
 		// Autodiscovery alert message function
 
@@ -817,7 +848,7 @@ namespace earthreader {
 			}
 		}
 
-		private void TextBlockTime_MouseDown(object sender, MouseButtonEventArgs e) {
+		private void TextBlockEntryTitle_MouseDown(object sender, MouseButtonEventArgs e) {
 			e.Handled = true;
 			TextBlock txt = sender as TextBlock;
 			try {
