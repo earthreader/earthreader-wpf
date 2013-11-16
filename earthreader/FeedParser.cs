@@ -13,19 +13,21 @@ using System.Xml;
 namespace earthreader {
 	public class FeedParser {
 		private static int nCount = 0;
-		public static ObservableCollection<EntryItem> Parser(string strXML, string strCaption) {
+		public static List<EntryItem> Parser(string strXML, string strCaption) {
 			XmlReader reader = XmlReader.Create(new StringReader(strXML));
 			SyndicationFeed feed = SyndicationFeed.Load(reader);
 
-			ObservableCollection<EntryItem> listEntry = new ObservableCollection<EntryItem>();
-			
+			List<EntryItem> listEntry = new List<EntryItem>();
+
 			foreach (SyndicationItem item in feed.Items) {
 				EntryItem ctm = new EntryItem();
 
 				ctm.Title = item.Title.Text;
 				ctm.URL = item.Links[0].Uri.OriginalString;
 				ctm.Content = HtmlRemoval.StripTagsCharArray(item.Summary.Text);
-				ctm.Tag = nCount; nCount++;
+
+				ctm.ID = nCount; nCount++;
+                
 
 				ctm.Summary = ctm.Content.Replace(Environment.NewLine, " ").Trim();
 				ctm.Summary = ctm.Summary.Replace((char)10, ' ').Trim();
@@ -33,13 +35,21 @@ namespace earthreader {
 					ctm.Summary = ctm.Summary.Substring(200);
 				}
 
-
-				try { ctm.Time = item.PublishDate.DateTime.ToString(); } catch { ctm.Time = ""; }
-				ctm.Category = strCaption;
+				try { ctm.Time = item.PublishDate.DateTime; } catch { ctm.Time = new DateTime(); }
+				ctm.Feed = strCaption;
 
 				listEntry.Add(ctm);
 			}
+
+			listEntry.Sort(new mysortByValue());
 			return listEntry;
+		}
+
+		public class mysortByValue : IComparer<EntryItem> {
+			public int Compare(EntryItem arg1, EntryItem arg2) {
+				if (arg1.Time == arg2.Time) { return 0; }
+				return arg1.Time > arg2.Time ? 1 : -1;
+			}
 		}
 	}
 }

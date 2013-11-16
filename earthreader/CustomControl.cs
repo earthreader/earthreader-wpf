@@ -71,7 +71,7 @@ namespace earthreader {
 			return buttonBase;
 		}
 
-		public static Button GetFeedCandidateButton(FeedCandidateList fcl) {
+		public static Button GetFeedCandidateButton(FeedCandidateItem fcl) {
 			string strCaption = fcl.Title;
 			string strURL = fcl.URL;
 

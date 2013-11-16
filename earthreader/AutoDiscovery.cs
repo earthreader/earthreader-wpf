@@ -11,9 +11,8 @@ using System.Xml;
 
 namespace earthreader {
 	public class AutoDiscovery {
-
-		public static async Task<List<FeedCandidateList>> GetCandidateFeeds(string strURL) {
-			List<FeedCandidateList> listCd = new List<FeedCandidateList>();
+		public static async Task<List<FeedCandidateItem>> GetCandidateFeeds(string strURL) {
+			List<FeedCandidateItem> listCd = new List<FeedCandidateItem>();
 			
 			Task<string> httpTask = GetHTML(strURL);
 			string strHTML = await httpTask;
@@ -24,7 +23,7 @@ namespace earthreader {
 				XmlReader reader = XmlReader.Create(new StringReader(strHTML));
 				SyndicationFeed feed = SyndicationFeed.Load(reader);
 
-				listCd.Add(new FeedCandidateList() { Title = feed.Title.Text, URL = strURL, Source = strHTML });
+				listCd.Add(new FeedCandidateItem() { Title = feed.Title.Text, URL = strURL, Source = strHTML });
 
 			} catch (Exception e) {
 				//MessageBox.Show(e.Message);
@@ -63,7 +62,7 @@ namespace earthreader {
 		}
 	}
 
-	public struct FeedCandidateList {
+	public struct FeedCandidateItem {
 		public string Title, URL, Source;
 	}
 }

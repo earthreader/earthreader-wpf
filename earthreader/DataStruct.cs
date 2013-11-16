@@ -14,7 +14,7 @@ namespace earthreader {
 		public List<int> Children;
 		public BitmapImage Favicon;
 
-		public ObservableCollection<EntryItem> Contents;
+		public List<EntryItem> Contents;
 
 		private string _caption;
 		public string Caption {
@@ -64,6 +64,7 @@ namespace earthreader {
 		}
 	}
 
+	/*
 	public class EntryItem : INotifyPropertyChanged, IComparable {
 
 		public EntryItem() { }
@@ -93,6 +94,28 @@ namespace earthreader {
 				OnPropertyChanged("Tag");
 			}
 		}
+
+        private int sTagPrev;
+        public int TagPrev
+        {
+            get { return sTagPrev; }
+            set
+            {
+                sTagPrev = value;
+                OnPropertyChanged("TagPrev");
+            }
+        }
+
+        private int sTagNext;
+        public int TagNext
+        {
+            get { return sTagNext; }
+            set
+            {
+                sTagNext = value;
+                OnPropertyChanged("TagNext");
+            }
+        }
 
 		private string sTime;
 		public string Time {
@@ -178,4 +201,5 @@ namespace earthreader {
 			}
 		}
 	}
+	 */ 
 }
