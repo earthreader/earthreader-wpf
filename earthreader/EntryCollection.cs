@@ -132,7 +132,8 @@ namespace earthreader {
 				grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(0), });
 			}
 			grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(150), });
-			grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(150, GridUnitType.Star), });
+			grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto), });
+			grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star), });
 
 
 			TextBlock txtTime = new TextBlock() {
@@ -145,17 +146,27 @@ namespace earthreader {
 			grid.Children.Add(txtTime);
 			Grid.SetColumn(txtTime, 1);
 
-			TextBlock txtSummary = new TextBlock() {
-				Text = item.Summary, Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
+			TextBlock txtTitle = new TextBlock() {
+				Text = item.Title, Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
 				FontSize = 16,
 				//Background = Brushes.Blue,
 				VerticalAlignment = VerticalAlignment.Center,
 			};
+			grid.Children.Add(txtTitle);
+			Grid.SetColumn(txtTitle, 2);
+
+			TextBlock txtSummary = new TextBlock() {
+				Text = item.Summary, Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
+				FontSize = 16,
+				//Background = Brushes.Blue,
+				Foreground = Brushes.DarkGray,
+				VerticalAlignment = VerticalAlignment.Center,
+			};
 			grid.Children.Add(txtSummary);
-			Grid.SetColumn(txtSummary, 2);
+			Grid.SetColumn(txtSummary, 3);
 
 			Rectangle rect = new Rectangle() {
-				Height = 1, Fill = Brushes.Black,
+				Height = 1, Fill = Brushes.LightGray,
 				VerticalAlignment = VerticalAlignment.Top,
 				HorizontalAlignment = HorizontalAlignment.Stretch,
 			};
