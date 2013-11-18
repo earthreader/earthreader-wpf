@@ -37,8 +37,8 @@ namespace earthreader {
 				case 'R':
 					// Rename
 					textFormType.Text = "Rename item";
-					textboxTitle.Text = FeedDictionary[nDialogID].Caption;
-					textboxTitle.Tag = FeedDictionary[nDialogID].Caption;
+					textboxTitle.Text = FeedDictionary[nDialogID].Title;
+					textboxTitle.Tag = FeedDictionary[nDialogID].Title;
 
 					textboxTitle.Visibility = Visibility.Visible;
 					textDialogMessage.Visibility = Visibility.Collapsed;
@@ -49,7 +49,7 @@ namespace earthreader {
 				case 'D':
 					// Delete
 					textFormType.Text = "Question";
-					textDialogMessage.Text = string.Format("{0} 지울거임", FeedDictionary[nDialogID].Caption);
+					textDialogMessage.Text = string.Format("{0} 지울거임", FeedDictionary[nDialogID].Title);
 
 					if (!FeedDictionary[nDialogID].IsFeed) {
 						textDialogMessage.Text += "\n카테고리의 경우 내부까지 전부 지워짐";
@@ -74,7 +74,7 @@ namespace earthreader {
 						textboxTitle.Focus(); return;
 					}
 
-					FeedDictionary[nDialogID].Caption = textboxTitle.Text;
+					FeedDictionary[nDialogID].Title = textboxTitle.Text;
 
 					break;
 

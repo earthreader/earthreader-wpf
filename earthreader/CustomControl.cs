@@ -24,7 +24,7 @@ namespace earthreader {
 				context.Items.Add(mItem1);
 			}
 			if (strTag[0] == 'C' || strTag[0] == 'F') {
-				MenuItem mItem2 = new MenuItem() { Header = feedItem.Caption, Tag = "D" + feedItem.ID, HeaderStringFormat = "Delete {0}" };
+				MenuItem mItem2 = new MenuItem() { Header = feedItem.Title, Tag = "D" + feedItem.ID, HeaderStringFormat = "Delete {0}" };
 
 				Binding binding0 = new Binding("Caption");
 				binding0.Source = feedItem;
@@ -51,7 +51,7 @@ namespace earthreader {
 			};
 			gridCount.Children.Add(textCount);
 
-			Binding binding1 = new Binding("Caption");
+			Binding binding1 = new Binding("Title");
 			binding1.Source = feedItem;
 			text.SetBinding(TextBlock.TextProperty, binding1);
 

@@ -13,7 +13,7 @@ using System.Xml;
 namespace earthreader {
 	public class FeedParser {
 		private static int nCount = 0;
-		public static List<EntryItem> Parser(string strXML, string strCaption) {
+		public static List<EntryItem> Parser(string strXML, int FeedID) {
 			XmlReader reader = XmlReader.Create(new StringReader(strXML));
 			SyndicationFeed feed = SyndicationFeed.Load(reader);
 
@@ -36,7 +36,7 @@ namespace earthreader {
 				}
 
 				try { ctm.Time = item.PublishDate.DateTime; } catch { ctm.Time = new DateTime(); }
-				ctm.Feed = strCaption;
+				ctm.Feed = FeedID;
 
 				listEntry.Add(ctm);
 			}

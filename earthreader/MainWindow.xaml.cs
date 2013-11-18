@@ -40,7 +40,7 @@ namespace earthreader {
 			// Add root
 
 			FeedDictionary.Add(0, new FeedItem() {
-				ID = 0, Caption = "all feeds", Count = 1, ParentID = 0,
+				ID = 0, Title = "all feeds", Count = 1, ParentID = 0,
 				IsFeed = false, URL = "", Children = new List<int>(),
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconAll.png")),
 			});
@@ -49,7 +49,7 @@ namespace earthreader {
 
 			for (int i = 0; i < 5; i++) {
 				FeedDictionary.Add(nCount, new FeedItem() {
-					ID = nCount, Caption = "Folder " + i.ToString("00"), Count = 0, ParentID = 0,
+					ID = nCount, Title = "Folder " + i.ToString("00"), Count = 0, ParentID = 0,
 					IsFeed = false, URL = "", Children = new List<int>(),
 					Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconCategory.png")),
 				});
@@ -65,24 +65,47 @@ namespace earthreader {
 			this.PreviewKeyDown += (o, ex) => {
 				if (isAddWindowMode) { return; }
 				bool isKeyHandled = true;
+				int EntryIndex = -1;
 
 				switch (ex.Key) {
 					case Key.Up:
+						ScrollEntry.ScrollToVerticalOffset(ScrollEntry.VerticalOffset - 40);
 						break;
 					case Key.Down:
+						ScrollEntry.ScrollToVerticalOffset(ScrollEntry.VerticalOffset + 40);
 						break;
 					case Key.J:
+						//textTemp.Text = LastSelectedItemIndex.ToString();
+						EntryIndex = GetPositionByIndex(LastSelectedEntryID);
+
+						if (EntryIndex >= EntryCollection.Count - 1) { return; }
+						if (EntryIndex < 0 && EntryCollection.Count == 0) { return; }
+
+						RefreshFocusEntry(EntryCollection[EntryIndex + 1]);
+						ScrollEntry.ScrollToVerticalOffset(EntryIndex * 40 + 10);
 						break;
 					case Key.K:
+						EntryIndex = GetPositionByIndex(LastSelectedEntryID);
 
+						if (EntryIndex <= 0) { return; }
+
+						RefreshFocusEntry(EntryCollection[EntryIndex - 1]);
+						ScrollEntry.ScrollToVerticalOffset((EntryIndex - 2) * 40 + 10);
 						break;
 					default:
 						isKeyHandled = false;
 						break;
 				}
 				e.Handled = isKeyHandled;
-				textTemp.Text = isKeyHandled.ToString();
+				//textTemp.Text = isKeyHandled.ToString();
 			};
+		}
+
+		private int GetPositionByIndex(int EntryID) {
+			if (EntryCollection.Count == 0) { return -1; }
+
+			int EntryIndex = EntryCollection.FindIndex(x => x.ID == EntryID);
+			return EntryIndex;
 		}
 
 		private async void MakeNewFeedTestData(string URL, int Category) {

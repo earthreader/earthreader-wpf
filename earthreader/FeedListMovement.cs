@@ -54,7 +54,7 @@ namespace earthreader {
 				nMouseMovingID = nMouseDownID;
 				isMoving = true;
 
-				textNowMoving.Text = FeedDictionary[nMouseDownID].Caption;
+				textNowMoving.Text = FeedDictionary[nMouseDownID].Title;
 				gridMoveStatus.Visibility = Visibility.Visible;
 				rectMovePosition.Width = widthFeedlist.Width.Value;
 			}

@@ -121,7 +121,7 @@
                             </Grid>
                         </Grid>
                     </Button>
-                    <Button x:Name="buttonSetting" Grid.Row="0" Margin="50,0,0,0" Background="Transparent" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
+                    <Button x:Name="buttonSetting" Grid.Row="0" Margin="50,0,0,0" Background="Transparent" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource FlatButton}" Visibility="Collapsed">
                         <Grid Height="50" Width="50">
                             <Grid Width="50" Height="50" Background="{DynamicResource sColorDeep}">
                                 <Image Width="40" Source="/Resources/iconSetting.png"/>
@@ -209,6 +209,7 @@
             <Grid Grid.Row="1" Grid.Column="1">
                 <local:AniScrollViewer x:Name="ScrollEntry" Style="{DynamicResource ScrollViewerStyle}" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
                     <StackPanel x:Name="EntryStack" VerticalAlignment="Stretch">
+                        <!-- 
                             <Rectangle Height="100" Fill="Transparent"/>
                             <Rectangle Height="100" Fill="Blue"/>
                             <Rectangle Height="100" Fill="Green"/>
@@ -216,6 +217,7 @@
                             <Rectangle Height="100" Fill="Tan"/>
                             <Rectangle Height="100" Fill="DarkTurquoise"/>
                             <Rectangle Height="100" Fill="Yellow"/>
+                        -->
                     </StackPanel>
                 </local:AniScrollViewer>
                 <!-- 

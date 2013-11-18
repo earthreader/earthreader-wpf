@@ -17,7 +17,7 @@ namespace earthreader {
 		public List<EntryItem> Contents;
 
 		private string _caption;
-		public string Caption {
+		public string Title {
 			get { return _caption; }
 			set {
 				_caption = value;

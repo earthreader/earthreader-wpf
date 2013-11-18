@@ -39,7 +39,7 @@ namespace earthreader {
 				dictSaveIndex.Add(nID, nCount);
 				nCount++;
 
-				strLineData = string.Format("{0}#DataSplit#{1}#DataSplit#{2}#DataSplit#{3}#DataSplit#{4}#DataSplit#{5}", dictFeedItem[nID].Caption, dictFeedItem[nID].URL, dictFeedItem[nID].IsFeed, nParentID, strFaviconUri);
+				strLineData = string.Format("{0}#DataSplit#{1}#DataSplit#{2}#DataSplit#{3}#DataSplit#{4}#DataSplit#{5}", dictFeedItem[nID].Title, dictFeedItem[nID].URL, dictFeedItem[nID].IsFeed, nParentID, strFaviconUri);
 				strAllData += strLineData + "\n";
 
 				if (dictFeedItem[nID].IsFeed) { continue; }

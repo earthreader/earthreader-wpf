@@ -124,10 +124,10 @@ namespace earthreader {
 			string strCaption = fci.Title, strURL = fci.URL;
 
 			FeedDictionary.Add(nCount, new FeedItem() {
-				ID = nCount, Caption = strCaption, Count = 0, ParentID = Category,
+				ID = nCount, Title = strCaption, Count = 0, ParentID = Category,
 				IsFeed = true, URL = strURL,
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconFeed.png")),
-				Contents = FeedParser.Parser(fci.Source, fci.Title),
+				Contents = FeedParser.Parser(fci.Source, nCount),
 			});
 			FeedDictionary[Category].Children.Add(nCount);
 
@@ -155,7 +155,7 @@ namespace earthreader {
 			}
 
 			FeedDictionary.Add(nCount, new FeedItem() {
-				ID = nCount, Caption = textboxCategoryInput.Text, Count = 0, ParentID = NowCategoryViewID,
+				ID = nCount, Title = textboxCategoryInput.Text, Count = 0, ParentID = NowCategoryViewID,
 				IsFeed = false, URL = "", Children = new List<int>(),
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconCategory.png")),
 			});
@@ -242,7 +242,7 @@ namespace earthreader {
 
 			if (nID > 0) {
 				FeedItem fItem = new FeedItem() {
-					ID = 0, Caption = "back to parent", Count = 0,
+					ID = 0, Title = "back to parent", Count = 0,
 					IsFeed = true, URL = "", Children = new List<int>(),
 					Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconBack.png")),
 				};
