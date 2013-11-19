@@ -18,18 +18,24 @@ namespace earthreader {
 			SyndicationFeed feed = SyndicationFeed.Load(reader);
 
 			List<EntryItem> listEntry = new List<EntryItem>();
+			string Content;
 
 			foreach (SyndicationItem item in feed.Items) {
 				EntryItem ctm = new EntryItem();
 
-				ctm.Title = item.Title.Text;
+				ctm.Title = item.Title.Text.Replace(Environment.NewLine, " ");
+				ctm.Title = ctm.Title.Replace((char)10, ' ').Trim();
 				ctm.URL = item.Links[0].Uri.OriginalString;
-				ctm.Content = HtmlRemoval.StripTagsCharArray(item.Summary.Text);
+				ctm.Content = item.Summary.Text;
+				Content = HtmlRemoval.StripTagsCharArray(ctm.Content);
+
+				ctm.Content = ctm.Content.Replace(Environment.NewLine, ((char)10).ToString());
+				ctm.Content = ctm.Content.Replace(((char)10).ToString(), Environment.NewLine);
 
 				ctm.ID = nCount; nCount++;
                 
 
-				ctm.Summary = ctm.Content.Replace(Environment.NewLine, " ").Trim();
+				ctm.Summary = Content.Replace(Environment.NewLine, " ").Trim();
 				ctm.Summary = ctm.Summary.Replace((char)10, ' ').Trim();
 				if (ctm.Summary.Length > 200) {
 					ctm.Summary = ctm.Summary.Substring(200);

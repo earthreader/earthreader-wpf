@@ -21,7 +21,7 @@ namespace earthreader {
 			get { return _caption; }
 			set {
 				_caption = value;
-				OnPropertyChanged("Caption");
+				OnPropertyChanged("Title");
 			}
 		}
 

@@ -128,7 +128,7 @@
                             </Grid>
                         </Grid>
                     </Button>
-                    <TextBlock x:Name="textTemp" Text="??" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock x:Name="textTemp" Text="??" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Visibility="Collapsed"/>
                 </Grid>
             </Grid>
 
@@ -152,7 +152,7 @@
                         <TextBlock x:Name="textFormType" Text="Question" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" FontSize="16" Foreground="{DynamicResource sColor}"/>
                         <TextBlock x:Name="textTopMessage" Opacity="0" Text="Message" Foreground="White" Padding="10" Background="{DynamicResource sColor}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" HorizontalAlignment="Stretch"/>
                     </Grid>
-                    <TextBox x:Name="textboxTitle" Margin="5,5,5,10" FontSize="13.33" Tag="Enter the title" />
+                    <TextBox x:Name="textboxTitle" Margin="5,5,5,10" FontSize="13.33" Tag="Enter the title" KeyDown="textboxTitle_KeyDown"/>
                     <TextBlock x:Name="textDialogMessage" Text="Message Content" FontSize="13.33" Margin="10,5,10,10" MaxHeight="110" TextWrapping="Wrap" TextAlignment="Center"/>
                     <Grid Background="LightGray">
                         <Grid.ColumnDefinitions>
@@ -192,8 +192,8 @@
                         </Button>
                         <Image x:Name="imageModeStarred" Width="100" Source="/Resources/text/textstarred.png" IsHitTestVisible="False" Visibility="Collapsed"/>
                     </Grid>
-                    <Grid>
-                        <Button x:Name="buttonEntryOption" Background="Transparent" Width="60" Click="buttonEntryOption_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="buttonEntryOption" Background="Transparent" Width="40" Click="buttonEntryOption_Click">
                             <Image Source="/Resources/iconSetting.png" Height="40"/>
                             <Button.ContextMenu>
                                 <ContextMenu x:Name="contextMenu" HasDropShadow="False">
@@ -202,7 +202,10 @@
                                 </ContextMenu>
                             </Button.ContextMenu>
                         </Button>
-                    </Grid>
+                        <Button x:Name="buttonEntryHelp" Background="Transparent" Width="40" Click="buttonEntryHelp_Click">
+                            <Image Source="/Resources/questionmark.png" Height="40"/>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
 
@@ -220,6 +223,29 @@
                         -->
                     </StackPanel>
                 </local:AniScrollViewer>
+                <Grid x:Name="gridHelpCover" Background="#AA000000" MouseDown="gridHelpCover_MouseDown" Visibility="Collapsed">
+                    <StackPanel Background="White" VerticalAlignment="Top" Height="200">
+                        <TextBlock Text="Keyboard Shortcut" HorizontalAlignment="Center" Margin="10" FontSize="25" Foreground="{DynamicResource sColor}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="300">
+                            <Grid Margin="5" Background="Black" Width="30" Height="30">
+                                <TextBlock Text="J" FontSize="20" Foreground="White" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <TextBlock Text="Older entry" HorizontalAlignment="Center" Margin="10" FontSize="20"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="300">
+                            <Grid Margin="5" Background="Black" Width="30" Height="30">
+                                <TextBlock Text="K" FontSize="20" Foreground="White" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <TextBlock Text="Newer entry" HorizontalAlignment="Center" Margin="10" FontSize="20"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="300">
+                            <Grid Margin="5" Background="Black" Width="30" Height="30">
+                                <TextBlock Text="O" FontSize="20" Foreground="White" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <TextBlock Text="Open entry in new tab" HorizontalAlignment="Center" Margin="10" FontSize="20"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
                 <!-- 
                 <ListBox x:Name="listEntry" ItemsSource="{Binding}" Grid.Row="0" Grid.Column="1" BorderThickness="0" ScrollViewer.CanContentScroll="False" AllowDrop="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
                     <ListBox.ItemTemplate>

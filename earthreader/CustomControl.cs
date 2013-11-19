@@ -26,7 +26,7 @@ namespace earthreader {
 			if (strTag[0] == 'C' || strTag[0] == 'F') {
 				MenuItem mItem2 = new MenuItem() { Header = feedItem.Title, Tag = "D" + feedItem.ID, HeaderStringFormat = "Delete {0}" };
 
-				Binding binding0 = new Binding("Caption");
+				Binding binding0 = new Binding("Title");
 				binding0.Source = feedItem;
 				mItem2.SetBinding(MenuItem.HeaderProperty, binding0);
 

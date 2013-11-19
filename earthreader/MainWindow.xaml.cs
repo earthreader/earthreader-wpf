@@ -64,6 +64,7 @@ namespace earthreader {
 
 			this.PreviewKeyDown += (o, ex) => {
 				if (isAddWindowMode) { return; }
+				if (isDialogMode) { return; }
 				bool isKeyHandled = true;
 				int EntryIndex = -1;
 
@@ -75,7 +76,7 @@ namespace earthreader {
 						ScrollEntry.ScrollToVerticalOffset(ScrollEntry.VerticalOffset + 40);
 						break;
 					case Key.J:
-						//textTemp.Text = LastSelectedItemIndex.ToString();
+						//textTemp.Text += LastSelectedEntryID.ToString();
 						EntryIndex = GetPositionByIndex(LastSelectedEntryID);
 
 						if (EntryIndex >= EntryCollection.Count - 1) { return; }
@@ -91,6 +92,13 @@ namespace earthreader {
 
 						RefreshFocusEntry(EntryCollection[EntryIndex - 1]);
 						ScrollEntry.ScrollToVerticalOffset((EntryIndex - 2) * 40 + 10);
+						break;
+					case Key.O: 
+						EntryIndex = GetPositionByIndex(LastSelectedEntryID);
+
+						if (EntryIndex <= 0) { return; }
+
+						Process.Start(EntryCollection[EntryIndex].URL);
 						break;
 					default:
 						isKeyHandled = false;
@@ -163,6 +171,14 @@ namespace earthreader {
 			contextMenu.VerticalOffset = 50;
 
 			contextMenu.IsOpen = true;
+		}
+
+		bool isHelpVisible = false;
+		private void gridHelpCover_MouseDown(object sender, MouseButtonEventArgs e) { buttonEntryHelp.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); }
+		private void buttonEntryHelp_Click(object sender, RoutedEventArgs e) {
+			isHelpVisible = !isHelpVisible;
+
+			gridHelpCover.Visibility = isHelpVisible ? Visibility.Visible : Visibility.Collapsed;
 		}
 
 		/*

@@ -49,10 +49,10 @@ namespace earthreader {
 				case 'D':
 					// Delete
 					textFormType.Text = "Question";
-					textDialogMessage.Text = string.Format("{0} 지울거임", FeedDictionary[nDialogID].Title);
+					textDialogMessage.Text = string.Format("Delete {0}", FeedDictionary[nDialogID].Title);
 
 					if (!FeedDictionary[nDialogID].IsFeed) {
-						textDialogMessage.Text += "\n카테고리의 경우 내부까지 전부 지워짐";
+						textDialogMessage.Text += "\nif it's category, inner data will removed";
 					}
 
 					textboxTitle.Visibility = Visibility.Collapsed;
@@ -63,6 +63,15 @@ namespace earthreader {
 			isDialogMode = true;
 			gridDialog.IsHitTestVisible = true;
 			gridDialog.BeginAnimation(Grid.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+		}
+
+		private void textboxTitle_KeyDown(object sender, KeyEventArgs e) {
+			if (!isDialogMode) { return; }
+			switch (e.Key) {
+				case Key.Enter:
+					buttonPopupOK.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+					break;
+			}
 		}
 
 		private void buttonPopupOK_Click(object sender, RoutedEventArgs e) {

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
@@ -63,10 +66,7 @@ namespace earthreader {
 			ScrollEntry.ScrollToTop();
 		}
 
-		private void EntryButton_KeyDownBlock(object sender, System.Windows.Input.KeyEventArgs e) {
-			e.Handled = true;
-		}
-
+		private void EntryButton_KeyDownBlock(object sender, System.Windows.Input.KeyEventArgs e) { e.Handled = true; }
 		private void EntryButton_Click(object sender, RoutedEventArgs e) {
 			EntryItem item = (EntryItem)(sender as Button).Tag;
 			RefreshFocusEntry(item);
@@ -86,15 +86,17 @@ namespace earthreader {
 			}
 
 			entrybutton.Visibility = Visibility.Collapsed;
-			Rectangle rect = new Rectangle() { Height = 500, Fill = Brushes.Transparent };
-			gridbase.Children.Add(rect);
+			StackPanel stack = MakeFocusedEntryItem(item);
+			gridbase.Children.Add(stack);
 			LastSelectedGrid = gridbase;
 			LastSelectedEntryID = item.ID;
+			buttonAdd.Focus();
 		}
 
 
 
 
+		
 
 		private Grid MakeEntryButton(EntryItem item, bool isFeed) {
 			Grid gridBase = new Grid() {
@@ -102,7 +104,6 @@ namespace earthreader {
 				VerticalAlignment = VerticalAlignment.Stretch,
 			};
 			Button button = new Button() {
-				//Background = Brushes.Orange, 
 				Background = Brushes.Transparent,
 				Height = 40,
 				HorizontalContentAlignment = HorizontalAlignment.Stretch,
@@ -114,7 +115,6 @@ namespace earthreader {
 			Grid grid = new Grid() {
 				Height = 40,
 				HorizontalAlignment = HorizontalAlignment.Stretch,
-				//Background = Brushes.Pink
 			};
 
 			if (!isFeed) {
@@ -139,7 +139,6 @@ namespace earthreader {
 			TextBlock txtTime = new TextBlock() {
 				Width = 120,
 				Text = item.Time.ToString(), Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
-				//Background = Brushes.Green,
 				FontSize = 13.33,
 				VerticalAlignment = VerticalAlignment.Center,
 			};
@@ -149,7 +148,6 @@ namespace earthreader {
 			TextBlock txtTitle = new TextBlock() {
 				Text = item.Title, Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
 				FontSize = 16,
-				//Background = Brushes.Blue,
 				VerticalAlignment = VerticalAlignment.Center,
 			};
 			grid.Children.Add(txtTitle);
@@ -158,7 +156,6 @@ namespace earthreader {
 			TextBlock txtSummary = new TextBlock() {
 				Text = item.Summary, Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
 				FontSize = 16,
-				//Background = Brushes.Blue,
 				Foreground = Brushes.DarkGray,
 				VerticalAlignment = VerticalAlignment.Center,
 			};
@@ -170,7 +167,6 @@ namespace earthreader {
 				VerticalAlignment = VerticalAlignment.Top,
 				HorizontalAlignment = HorizontalAlignment.Stretch,
 			};
-			//Grid.SetColumnSpan(rect, 3);
 
 			button.Content = grid;
 			gridBase.Children.Add(button);
@@ -181,12 +177,69 @@ namespace earthreader {
 
 			return gridBase;
 		}
+
+		private StackPanel MakeFocusedEntryItem(EntryItem item) {
+			StackPanel stack = new StackPanel();
+
+			Button buttonClose = new Button() { Background = Brushes.Transparent, Height = 30, Cursor = Cursors.Hand };
+
+			Button buttonTitle = new Button() { Background = Brushes.Transparent, Cursor = Cursors.Hand, HorizontalContentAlignment = HorizontalAlignment.Stretch, };
+			TextBlock txtTitle = new TextBlock() {
+				Text = item.Title, FontSize = 25, Margin = new Thickness(30, 0, 30, 0),
+				//Background = Brushes.Yellow, 
+				Tag = item.URL,
+			};
+			buttonTitle.Content = txtTitle;
+			buttonTitle.Click += (o, e) => {
+				Button button = (o as Button);
+				TextBlock txt = (TextBlock)button.Content;
+				string url = (string)txt.Tag;
+				//MessageBox.Show(txt.Text + "\n\n" + txt.Text.Replace(Environment.NewLine,""));
+				Process.Start(url);
+			};
+
+			WebBrowser wb = new WebBrowser() {
+				Margin = new Thickness(30, 20, 30, 30), VerticalAlignment = System.Windows.VerticalAlignment.Stretch, Focusable = false,
+			};
+			wb.LoadCompleted += wb_LoadCompleted;
+			wb.NavigateToString(@"<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8'></head>" + item.Content);
+
+			TextBlock txtContent = new TextBlock() {
+				Text = HtmlRemoval.StripTagsCharArray(item.Content), Margin = new Thickness(30, 20, 30, 30),
+				FontSize = 16,
+				TextWrapping = TextWrapping.Wrap,
+				//Background = Brushes.Tomato,
+			};
+
+
+			stack.Children.Add(buttonClose);
+			stack.Children.Add(buttonTitle);
+			stack.Children.Add(txtContent);
+			//stack.Children.Add(wb);
+
+			return stack;
+		}
+
+		void wb_LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e) {
+
+
+			string script = "document.body.style.overflow ='hidden'";
+			WebBrowser wb = (WebBrowser)sender;
+			mshtml.HTMLDocument htmlDoc = wb.Document as mshtml.HTMLDocument;
+			if (htmlDoc != null && htmlDoc.body != null) {
+				mshtml.IHTMLElement2 body = (mshtml.IHTMLElement2)htmlDoc.body;
+				wb.Height = body.scrollHeight;
+			}
+
+			wb.InvokeScript("execScript", new Object[] { script, "JavaScript" });
+		}
 	}
 
 	public class EntryItem {
 		public string Title, Summary, Content, URL;
 		public int ID, Feed;
 		public DateTime Time;
+		public bool isRead;
 		public Grid EntryBaseGrid;
 	}
 }
