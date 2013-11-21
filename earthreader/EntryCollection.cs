@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace earthreader {
@@ -78,6 +79,13 @@ namespace earthreader {
 			Grid gridbase = item.EntryBaseGrid;
 			Button entrybutton = (Button)gridbase.Children[0];
 
+			if (!ReadDictionary.ContainsKey(item.ID)) {
+				ReadDictionary.Add(item.ID, true);
+				Grid gridContent = (Grid)entrybutton.Content;
+
+				(gridContent.Children[1] as TextBlock).FontWeight = FontWeights.Normal;
+			}
+
 			if (LastSelectedGrid != null) {
 				if (LastSelectedGrid.Children.Count > 2) {
 					LastSelectedGrid.Children.RemoveAt(2);
@@ -93,11 +101,7 @@ namespace earthreader {
 			buttonAdd.Focus();
 		}
 
-
-
-
 		
-
 		private Grid MakeEntryButton(EntryItem item, bool isFeed) {
 			Grid gridBase = new Grid() {
 				HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -119,15 +123,6 @@ namespace earthreader {
 
 			if (!isFeed) {
 				grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(150), });
-				TextBlock txtCategory = new TextBlock() {
-					Text = FeedDictionary[item.Feed].Title, Margin = new Thickness(20, 0, 15, 0),
-					TextTrimming = TextTrimming.CharacterEllipsis,
-					HorizontalAlignment = HorizontalAlignment.Left,
-					FontSize = 16,
-					VerticalAlignment = VerticalAlignment.Center,
-				};
-				grid.Children.Add(txtCategory);
-				Grid.SetColumn(txtCategory, 0);
 			} else {
 				grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(0), });
 			}
@@ -150,8 +145,21 @@ namespace earthreader {
 				FontSize = 16,
 				VerticalAlignment = VerticalAlignment.Center,
 			};
+			if (!ReadDictionary.ContainsKey(item.ID)) { txtTitle.FontWeight = FontWeights.Bold; }
 			grid.Children.Add(txtTitle);
 			Grid.SetColumn(txtTitle, 2);
+
+			if (!isFeed) {
+				TextBlock txtCategory = new TextBlock() {
+					Text = FeedDictionary[item.Feed].Title, Margin = new Thickness(20, 0, 15, 0),
+					TextTrimming = TextTrimming.CharacterEllipsis,
+					HorizontalAlignment = HorizontalAlignment.Left,
+					FontSize = 16,
+					VerticalAlignment = VerticalAlignment.Center,
+				};
+				grid.Children.Add(txtCategory);
+				Grid.SetColumn(txtCategory, 0);
+			}
 
 			TextBlock txtSummary = new TextBlock() {
 				Text = item.Summary, Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
@@ -181,7 +189,21 @@ namespace earthreader {
 		private StackPanel MakeFocusedEntryItem(EntryItem item) {
 			StackPanel stack = new StackPanel();
 
-			Button buttonClose = new Button() { Background = Brushes.Transparent, Height = 30, Cursor = Cursors.Hand };
+			Button buttonClose = new Button() { Background = Brushes.Transparent, Height = 30, Cursor = Cursors.Hand, HorizontalContentAlignment = HorizontalAlignment.Stretch };
+			Grid gridClose = new Grid() { Height = 30, Background = Brushes.Transparent };
+			Image imageClose = new Image() {
+				Source = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/btnClose_Entry.png")),
+				VerticalAlignment = VerticalAlignment.Center,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				Margin = new Thickness(3, 3, 13, 3),
+				Width = 15, Height = 15,
+			};
+			gridClose.Children.Add(imageClose);
+			buttonClose.Content = gridClose;
+			buttonClose.Click += (o, e) => {
+				LastSelectedGrid.Children.RemoveAt(2);
+				((Button)LastSelectedGrid.Children[0]).Visibility = Visibility.Visible;
+			};
 
 			Button buttonTitle = new Button() { Background = Brushes.Transparent, Cursor = Cursors.Hand, HorizontalContentAlignment = HorizontalAlignment.Stretch, };
 			TextBlock txtTitle = new TextBlock() {

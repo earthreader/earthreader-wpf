@@ -242,7 +242,7 @@
                             <Grid Margin="5" Background="Black" Width="30" Height="30">
                                 <TextBlock Text="O" FontSize="20" Foreground="White" HorizontalAlignment="Center"/>
                             </Grid>
-                            <TextBlock Text="Open entry in new tab" HorizontalAlignment="Center" Margin="10" FontSize="20"/>
+                            <TextBlock Text="Open entry in browser" HorizontalAlignment="Center" Margin="10" FontSize="20"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>

@@ -29,6 +29,7 @@ namespace earthreader {
 		bool isScrollVisible = false, isMouseDown, isAddWindowMode, isDialogMode;
 		int nFeedlistWidth = 250, nCount = 1;
 		Dictionary<int, FeedItem> FeedDictionary = new Dictionary<int, FeedItem>();
+		Dictionary<int, bool> ReadDictionary = new Dictionary<int, bool>();
 		//Dictionary<int, EntryItem> dictEntry = new Dictionary<int, EntryItem>();
 		int NowFeedIndex = -1;
 
@@ -95,15 +96,16 @@ namespace earthreader {
 						break;
 					case Key.O: 
 						EntryIndex = GetPositionByIndex(LastSelectedEntryID);
+						textTemp.Text = EntryIndex.ToString();
 
-						if (EntryIndex <= 0) { return; }
+						if (EntryIndex < 0) { return; }
 
 						Process.Start(EntryCollection[EntryIndex].URL);
 						break;
 					default:
 						isKeyHandled = false;
 						break;
-				}
+				}	
 				e.Handled = isKeyHandled;
 				//textTemp.Text = isKeyHandled.ToString();
 			};
