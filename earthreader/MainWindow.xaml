@@ -100,13 +100,13 @@
 
                         <TextBlock Text="Search feed candidates" Foreground="White" Margin="10,5,10,10" FontSize="13.33" VerticalAlignment="Top" Height="20"/>
                         <TextBox x:Name="textboxFeedInput" Margin="10,30,40,10" Height="30" FontSize="14" Tag="Enter your feed URL" VerticalAlignment="Top"/>
-                        <Button x:Name="buttonFeedAccept" Margin="10,30,10,10" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{DynamicResource FlatButton}">
+                        <Button x:Name="buttonFeedAccept" Margin="10,30,10,10" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{DynamicResource FlatButton}" Focusable="False">
                             <Image Width="30" Source="/Resources/iconFeed.png"/>
                         </Button>
 
                         <TextBlock Text="Add category" Foreground="White" Margin="10,10,10,45" FontSize="13.33" VerticalAlignment="Bottom" Height="20"/>
                         <TextBox x:Name="textboxCategoryInput" Margin="10,10,40,10" Height="30" FontSize="14" Tag="Enter category's name" VerticalAlignment="Bottom"/>
-                        <Button x:Name="buttonCategoryAddAccept" Margin="10,10,10,10" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource FlatButton}">
+                        <Button x:Name="buttonCategoryAddAccept" Margin="10,10,10,10" Height="30" Width="30" Background="{DynamicResource sColor}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource FlatButton}" Focusable="False">
                             <Image Width="30" Source="/Resources/iconCategory.png"/>
                         </Button>
                     </Grid>
@@ -193,7 +193,7 @@
                         <Image x:Name="imageModeStarred" Width="100" Source="/Resources/text/textstarred.png" IsHitTestVisible="False" Visibility="Collapsed"/>
                     </Grid>
                     <StackPanel Orientation="Horizontal">
-                        <Button x:Name="buttonEntryOption" Background="Transparent" Width="40" Click="buttonEntryOption_Click">
+                        <Button x:Name="buttonEntryOption" Background="Transparent" Width="40" Click="buttonEntryOption_Click" Visibility="Collapsed">
                             <Image Source="/Resources/iconSetting.png" Height="40"/>
                             <Button.ContextMenu>
                                 <ContextMenu x:Name="contextMenu" HasDropShadow="False">
@@ -316,7 +316,8 @@
                     <Image Source="Resources/BtnClose.png"/>
                 </Button>
             </Grid>
-            <Image Width="200" Source="/Resources/text/textearthreader.png" IsHitTestVisible="False" HorizontalAlignment="Left"/>
+            <Image Source="/Resources/earthreader.png" IsHitTestVisible="False" HorizontalAlignment="Left" Width="35" Height="35" Margin="5"/>
+            <Image Width="200" Source="/Resources/text/textearthreader.png" IsHitTestVisible="False" HorizontalAlignment="Left" Margin="30,0,0,0"/>
         </Grid>
     </Grid>
 </Window>

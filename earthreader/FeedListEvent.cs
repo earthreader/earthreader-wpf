@@ -191,7 +191,7 @@ namespace earthreader {
 				textboxCategoryInput.Text = "";
 				textboxFeedInput.Text = "";
 				stackListAutoDiscovery.Children.Clear();
-				textboxCategoryInput.Focus();
+				textboxFeedInput.Focus();
 			}
 			isAddWindowMode = !isAddWindowMode;
 

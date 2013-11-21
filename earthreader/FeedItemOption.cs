@@ -93,6 +93,7 @@ namespace earthreader {
 					int nOffset = 1;
 					if (NowCategoryViewID != 0) { nOffset = 2; }
 
+
 					int nIndex = FeedDictionary[NowCategoryViewID].Children.IndexOf(nDialogID);
 					stackNow.Children.RemoveAt(nIndex + nOffset);
 
@@ -112,6 +113,8 @@ namespace earthreader {
 
 						FeedDictionary.Remove(nVertex);
 					}
+
+					RefreshEntry(NowCategoryViewID);
 
 					break;
 			}

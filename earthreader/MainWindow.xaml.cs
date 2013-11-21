@@ -30,6 +30,7 @@ namespace earthreader {
 		int nFeedlistWidth = 250, nCount = 1;
 		Dictionary<int, FeedItem> FeedDictionary = new Dictionary<int, FeedItem>();
 		Dictionary<int, bool> ReadDictionary = new Dictionary<int, bool>();
+		Dictionary<int, bool> StarDictionary = new Dictionary<int, bool>();
 		//Dictionary<int, EntryItem> dictEntry = new Dictionary<int, EntryItem>();
 		int NowFeedIndex = -1;
 
@@ -41,14 +42,14 @@ namespace earthreader {
 			// Add root
 
 			FeedDictionary.Add(0, new FeedItem() {
-				ID = 0, Title = "all feeds", Count = 1, ParentID = 0,
+				ID = 0, Title = "all feeds", Count = 0, ParentID = 0,
 				IsFeed = false, URL = "", Children = new List<int>(),
 				Favicon = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/iconAll.png")),
 			});
 
 			// Test code (30 categories)
 
-			for (int i = 0; i < 5; i++) {
+			for (int i = 0; i < 0; i++) {
 				FeedDictionary.Add(nCount, new FeedItem() {
 					ID = nCount, Title = "Folder " + i.ToString("00"), Count = 0, ParentID = 0,
 					IsFeed = false, URL = "", Children = new List<int>(),
@@ -161,6 +162,9 @@ namespace earthreader {
 			buttonModeAll.Visibility = nMode != 0 ? Visibility.Visible : Visibility.Collapsed;
 			buttonModeUnread.Visibility = nMode != 1 ? Visibility.Visible : Visibility.Collapsed;
 			buttonModeStarred.Visibility = nMode != 2 ? Visibility.Visible : Visibility.Collapsed;
+
+
+			RefreshEntry(NowFeedIndex);
 		}
 
 		private void buttonEntryOption_Click(object sender, RoutedEventArgs e) {

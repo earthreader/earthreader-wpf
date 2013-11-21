@@ -32,6 +32,8 @@ namespace earthreader {
 			int FeedID;
 			for (; Q.Count > 0; ) {
 				FeedID = Q.Dequeue();
+				//if(FeedDi
+
 				if (FeedDictionary[FeedID].IsFeed) {
 					L.Add(FeedID);
 				} else {
@@ -46,6 +48,8 @@ namespace earthreader {
 			EntryCollection = new List<EntryItem>();
 			foreach (int ID in L) {
 				foreach (EntryItem EItem in FeedDictionary[ID].Contents) {
+					if (strReadmode == "unread" && ReadDictionary.ContainsKey(EItem.ID)) { continue; }
+					if (strReadmode == "starred" && !StarDictionary.ContainsKey(EItem.ID)) { continue; }
 					EntryCollection.Add(EItem);
 				}
 			}
@@ -121,6 +125,7 @@ namespace earthreader {
 				HorizontalAlignment = HorizontalAlignment.Stretch,
 			};
 
+			grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(40), });
 			if (!isFeed) {
 				grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(150), });
 			} else {
@@ -133,12 +138,12 @@ namespace earthreader {
 
 			TextBlock txtTime = new TextBlock() {
 				Width = 120,
-				Text = item.Time.ToString(), Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
-				FontSize = 13.33,
+				Text = item.Time.ToString("yyyy-MM-dd HH:mm:ss"), Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
+				FontSize = 11,
 				VerticalAlignment = VerticalAlignment.Center,
 			};
 			grid.Children.Add(txtTime);
-			Grid.SetColumn(txtTime, 1);
+			Grid.SetColumn(txtTime, 2);
 
 			TextBlock txtTitle = new TextBlock() {
 				Text = item.Title, Margin = new Thickness(10, 0, 10, 0), HorizontalAlignment = HorizontalAlignment.Left,
@@ -147,18 +152,42 @@ namespace earthreader {
 			};
 			if (!ReadDictionary.ContainsKey(item.ID)) { txtTitle.FontWeight = FontWeights.Bold; }
 			grid.Children.Add(txtTitle);
-			Grid.SetColumn(txtTitle, 2);
+			Grid.SetColumn(txtTitle, 3);
+
+			Button buttonStar = new Button() { Background = Brushes.Transparent, Width = 40, Height = 40, Tag = item.ID };
+			Grid gridStar = new Grid() {
+				Width = 40, Height = 40,
+				OpacityMask = new ImageBrush(rtSource("star.png")),
+				Background = Brushes.LightGray,
+			};
+			if (StarDictionary.ContainsKey(item.ID)) { gridStar.Background = Brushes.Goldenrod; }
+			buttonStar.Content = gridStar;
+			grid.Children.Add(buttonStar);
+			Grid.SetColumn(buttonStar, 0);
+
+			buttonStar.Click += (o, e) => {
+				e.Handled = true;
+				int ItemID = (int)(o as Button).Tag;
+
+				if (StarDictionary.ContainsKey(ItemID)) {
+					StarDictionary.Remove(ItemID);
+					((o as Button).Content as Grid).Background = Brushes.LightGray;
+				} else {
+					StarDictionary.Add(ItemID, true);
+					((o as Button).Content as Grid).Background = Brushes.Goldenrod;
+				}
+			};
 
 			if (!isFeed) {
 				TextBlock txtCategory = new TextBlock() {
-					Text = FeedDictionary[item.Feed].Title, Margin = new Thickness(20, 0, 15, 0),
+					Text = FeedDictionary[item.Feed].Title, Margin = new Thickness(10, 0, 15, 0),
 					TextTrimming = TextTrimming.CharacterEllipsis,
 					HorizontalAlignment = HorizontalAlignment.Left,
 					FontSize = 16,
 					VerticalAlignment = VerticalAlignment.Center,
 				};
 				grid.Children.Add(txtCategory);
-				Grid.SetColumn(txtCategory, 0);
+				Grid.SetColumn(txtCategory, 1);
 			}
 
 			TextBlock txtSummary = new TextBlock() {
@@ -168,7 +197,7 @@ namespace earthreader {
 				VerticalAlignment = VerticalAlignment.Center,
 			};
 			grid.Children.Add(txtSummary);
-			Grid.SetColumn(txtSummary, 3);
+			Grid.SetColumn(txtSummary, 4);
 
 			Rectangle rect = new Rectangle() {
 				Height = 1, Fill = Brushes.LightGray,
@@ -195,7 +224,7 @@ namespace earthreader {
 				Source = new BitmapImage(new Uri("pack://application:,,,/earthreader;component/Resources/btnClose_Entry.png")),
 				VerticalAlignment = VerticalAlignment.Center,
 				HorizontalAlignment = HorizontalAlignment.Right,
-				Margin = new Thickness(3, 3, 13, 3),
+				Margin = new Thickness(3, 6, 11, 0),
 				Width = 15, Height = 15,
 			};
 			gridClose.Children.Add(imageClose);
@@ -203,6 +232,12 @@ namespace earthreader {
 			buttonClose.Click += (o, e) => {
 				LastSelectedGrid.Children.RemoveAt(2);
 				((Button)LastSelectedGrid.Children[0]).Visibility = Visibility.Visible;
+
+				SolidColorBrush sBrush = FindResource("sColor") as SolidColorBrush;
+
+				((LastSelectedGrid.Children[0] as Button).Content as Grid).BeginAnimation(Grid.OpacityProperty,
+					new DoubleAnimation(0.3, 1, TimeSpan.FromMilliseconds(500)));
+				//sBrush.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(Colors.Transparent, TimeSpan.FromMilliseconds(200)));
 			};
 
 			Button buttonTitle = new Button() { Background = Brushes.Transparent, Cursor = Cursors.Hand, HorizontalContentAlignment = HorizontalAlignment.Stretch, };
@@ -243,8 +278,6 @@ namespace earthreader {
 		}
 
 		void wb_LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e) {
-
-
 			string script = "document.body.style.overflow ='hidden'";
 			WebBrowser wb = (WebBrowser)sender;
 			mshtml.HTMLDocument htmlDoc = wb.Document as mshtml.HTMLDocument;
@@ -254,6 +287,12 @@ namespace earthreader {
 			}
 
 			wb.InvokeScript("execScript", new Object[] { script, "JavaScript" });
+		}
+
+		public static BitmapImage rtSource(string uriSource) {
+			uriSource = "pack://application:,,,/earthreader;component/Resources/" + uriSource;
+			BitmapImage source = new BitmapImage(new Uri(uriSource));
+			return source;
 		}
 	}
 
